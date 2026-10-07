@@ -215,7 +215,7 @@ mark{background:#FFE2E6;color:var(--red-d);border-radius:3px;padding:0 2px}
   </div>
 
   <div class="foot">
-    本机知识库 · 生成于 2026-10-07 22:33 · 共 137 篇<br>
+    本机知识库 · 生成于 2026-10-07 22:34 · 共 137 篇<br>
     Hermes 技能库 + 自建分镜大师包 + 青苹果与红苹果剧本项目
   </div>
 </div>
@@ -315,7 +315,7 @@ function dlDoc(d){
 function dlPack(p){
   var docs = p.docs.map(function(i){ return byId[i]; }).filter(Boolean);
   var fs = zipDocs(docs, p.folder);
-  fs.push({path: p.folder+'/README.md', data: '# '+p.name+'\n\n'+p.desc+'\n\n共 '+docs.length+' 个技能/文档。\n\n把 '+p.folder+' 下的每个子目录复制到你所用 agent 的 skills 目录即可（每个子目录内含 SKILL.md）。\n\n生成时间：2026-10-07 22:33\n'});
+  fs.push({path: p.folder+'/README.md', data: '# '+p.name+'\n\n'+p.desc+'\n\n共 '+docs.length+' 个技能/文档。\n\n把 '+p.folder+' 下的每个子目录复制到你所用 agent 的 skills 目录即可（每个子目录内含 SKILL.md）。\n\n生成时间：2026-10-07 22:34\n'});
   save(zip(fs), p.folder+'.zip');
   toast('已打包 '+docs.length+' 篇：'+p.folder+'.zip');
 }
@@ -323,7 +323,7 @@ function dlTopic(t){
   var docs = DOCS.filter(function(d){ return (d.topics||[]).indexOf(t)>=0; });
   var files = [];
   docs.forEach(function(d){ files = files.concat(zipDocs([d], t)); });
-  files.push({path: t+'/README.md', data:'# '+t+'\n\n共 '+docs.length+' 篇。\n\n生成时间：2026-10-07 22:33\n'});
+  files.push({path: t+'/README.md', data:'# '+t+'\n\n共 '+docs.length+' 篇。\n\n生成时间：2026-10-07 22:34\n'});
   save(zip(files), t+'.zip');
   toast('已打包分类「'+t+'」'+docs.length+' 篇');
 }
@@ -344,12 +344,12 @@ function dlAll(){
   GROUPS.forEach(function(g){
     g.docs.map(function(i){ return byId[i]; }).filter(Boolean).forEach(function(d){ fs = fs.concat(zipDocs([d], g.name)); });
   });
-  fs.push({path:'README.md', data:'# 知识库全量导出\n\n生成时间：2026-10-07 22:33\n共 137 篇。\n\n目录结构：分组名/技能名/SKILL.md（含 references、scripts、examples 等支持文件）。\n把某个「技能名」目录复制到你所用 agent 的 skills 目录即可。\n'});
+  fs.push({path:'README.md', data:'# 知识库全量导出\n\n生成时间：2026-10-07 22:34\n共 137 篇。\n\n目录结构：分组名/技能名/SKILL.md（含 references、scripts、examples 等支持文件）。\n把某个「技能名」目录复制到你所用 agent 的 skills 目录即可。\n'});
   save(zip(fs), '知识库-全量.zip');
   toast('已打包全量 '+DOCS.length+' 篇');
 }
 function dlMarkdown(){
-  var s = '# 知识库全量合集\n\n生成时间：2026-10-07 22:33\n\n---\n\n';
+  var s = '# 知识库全量合集\n\n生成时间：2026-10-07 22:34\n\n---\n\n';
   DOCS.forEach(function(d){
     s += '\n\n# ' + d.title + '\n\n> ' + (d.group||'') + ' · ' + (d.desc||'') + '\n\n';
     var b = bodyOf(d);
