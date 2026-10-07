@@ -523,6 +523,9 @@ function loadWorks(){
     var seen = [];
     ws.forEach(function(x){ var f = x.folder; if(f && seen.indexOf(f) < 0) seen.push(f); });
     seedFolders(seen.concat(['建模参考','真人感参考']));
+    var scr = [];
+    ws.forEach(function(x){ var s = x.script; if(s && scr.indexOf(s) < 0) scr.push(s); });
+    seedScripts(scr.concat(['青苹果与红苹果']));
     if(!ws.length){ box.innerHTML = '<p class="hint">还没有你上传的作品。</p>'; return; }
     box.innerHTML = '';
     ws.forEach(function(it){
