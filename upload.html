@@ -200,6 +200,19 @@ function api(path, opt){
     });
 }
 
+/* 文件夹候选：不等连接也先给几个常用例子，连上后再合并已用过的 */
+function seedFolders(list){
+  var dl = document.getElementById('folderList');
+  if(!dl) return;
+  var seen = [], i;
+  for(i = 0; i < dl.options.length; i++) seen.push(dl.options[i].value);
+  (list || []).forEach(function(f){ if(f && seen.indexOf(f) < 0) seen.push(f); });
+  dl.innerHTML = seen.map(function(f){
+    return '<option value="' + String(f).replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '">';
+  }).join('');
+}
+seedFolders(['建模参考','真人感参考','青苹果短片']);
+
 function testConn(){
   saveCfg();
   applyConnUI();
@@ -483,10 +496,9 @@ function loadWorks(){
   fetchWorks().then(function(j){
     var ws = (j && j.works) ? j.works : [];
     /* 作品库文件夹候选（已用过的 + 首页示例的） */
-    var seen = [], dl = document.getElementById('folderList');
+    var seen = [];
     ws.forEach(function(x){ var f = x.folder; if(f && seen.indexOf(f) < 0) seen.push(f); });
-    ['建模参考','真人感参考'].forEach(function(f){ if(seen.indexOf(f) < 0) seen.push(f); });
-    dl.innerHTML = seen.map(function(f){ return '<option value="' + f.replace(/"/g,'&quot;') + '">'; }).join('');
+    seedFolders(seen.concat(['建模参考','真人感参考']));
     if(!ws.length){ box.innerHTML = '<p class="hint">还没有你上传的作品。</p>'; return; }
     box.innerHTML = '';
     ws.forEach(function(it){
