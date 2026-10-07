@@ -15,7 +15,9 @@
   ],
   "bytes": 127102,
   "demo": true,
-  "folder": "建模参考"
+  "folder": "建模参考",
+  "line": "资产",
+  "script": ""
  },
  {
   "id": "mo2",
@@ -33,7 +35,9 @@
   ],
   "bytes": 69572,
   "demo": true,
-  "folder": "建模参考"
+  "folder": "建模参考",
+  "line": "资产",
+  "script": ""
  },
  {
   "id": "mo3",
@@ -51,7 +55,9 @@
   ],
   "bytes": 126506,
   "demo": true,
-  "folder": "建模参考"
+  "folder": "建模参考",
+  "line": "资产",
+  "script": ""
  },
  {
   "id": "mo4",
@@ -69,7 +75,9 @@
   ],
   "bytes": 122744,
   "demo": true,
-  "folder": "建模参考"
+  "folder": "建模参考",
+  "line": "资产",
+  "script": ""
  },
  {
   "id": "ref1",
@@ -86,7 +94,9 @@
   ],
   "bytes": 66574,
   "demo": true,
-  "folder": "真人感参考"
+  "folder": "真人感参考",
+  "line": "摄影",
+  "script": ""
  },
  {
   "id": "ref2",
@@ -103,7 +113,9 @@
   ],
   "bytes": 61014,
   "demo": true,
-  "folder": "真人感参考"
+  "folder": "真人感参考",
+  "line": "摄影",
+  "script": ""
  },
  {
   "id": "ref3",
@@ -120,7 +132,9 @@
   ],
   "bytes": 49782,
   "demo": true,
-  "folder": "真人感参考"
+  "folder": "真人感参考",
+  "line": "摄影",
+  "script": ""
  },
  {
   "id": "ref4",
@@ -137,7 +151,9 @@
   ],
   "bytes": 46602,
   "demo": true,
-  "folder": "真人感参考"
+  "folder": "真人感参考",
+  "line": "摄影",
+  "script": ""
  },
  {
   "id": "refFrames",
@@ -355,6 +371,8 @@
    "真人感"
   ],
   "demo": true,
-  "folder": "真人感参考"
+  "folder": "真人感参考",
+  "line": "摄影",
+  "script": ""
  }
 ]
