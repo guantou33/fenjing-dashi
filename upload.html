@@ -110,7 +110,16 @@ code{background:var(--soft);border:1px solid var(--line);border-radius:5px;paddi
       <div><label>上传到作品库哪个文件夹？（必填，可直接新建）</label>
         <input type="text" id="folder" list="folderList" placeholder="例如：青苹果短片 / 建模参考 / 真人感测试"></div>
       <datalist id="folderList"></datalist>
-      <div><label>这批作品的分类（会显示在卡片上）</label><input type="text" id="cat" placeholder="例如：建模 / 真人感测试 / 短片截图"></div>
+      <div><label>分类（作品表按这个分栏）</label>
+        <select id="line">
+          <option value="AI">AI · 生成图/成片</option>
+          <option value="资产">资产 · 角色/场景/道具</option>
+          <option value="摄影">摄影 · 参考/逐帧/质感</option>
+        </select></div>
+      <div><label>属于哪个剧本（作品表按这个归集）</label>
+        <input type="text" id="script" list="scriptList" placeholder="留空 = 未归剧本">
+        <datalist id="scriptList"></datalist></div>
+      <div><label>说明（会显示在卡片上，可留空）</label><input type="text" id="cat" placeholder="例如：建模三视图 / 真人感测试 / 成片截图"></div>
     </div>
     <div class="row" style="margin-top:12px">
       <div><label>标签（逗号分隔）</label><input type="text" id="tags" placeholder="例如：参考,九宫格"></div>
@@ -211,6 +220,18 @@ function seedFolders(list){
     return '<option value="' + String(f).replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '">';
   }).join('');
 }
+/* 剧本候选：先给已知项目，连上后再合并作品表里出现过的 */
+function seedScripts(list){
+  var dl = document.getElementById('scriptList');
+  if(!dl) return;
+  var seen = [], i;
+  for(i = 0; i < dl.options.length; i++) seen.push(dl.options[i].value);
+  (list || []).forEach(function(f){ if(f && seen.indexOf(f) < 0) seen.push(f); });
+  dl.innerHTML = seen.map(function(f){
+    return '<option value="' + String(f).replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '">';
+  }).join('');
+}
+seedScripts(['青苹果与红苹果']);
 seedFolders(['建模参考','真人感参考','青苹果短片']);
 
 function testConn(){
@@ -431,6 +452,8 @@ document.getElementById('go').onclick = function(){
   folderEl.style.borderColor = '';
   localStorage.setItem('kb_last_folder', folder);
   var cat = document.getElementById('cat').value.trim();
+  var line = (document.getElementById('line')||{}).value || 'AI';
+  var script = (document.getElementById('script').value || '').trim();
   var tags = document.getElementById('tags').value.split(/[,，]/).map(function(s){ return s.trim(); })
     .filter(function(s){ return s; });
   var btn = this; btn.disabled = true;
@@ -445,6 +468,7 @@ document.getElementById('go').onclick = function(){
       var base = fdir + '/' + stamp + '-' + (i+1) + '-' + p.title.replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,40);
       var entry = {
         type: p.kind, cat: cat, title: p.title, caption: '', folder: folder,
+        line: line, script: script,
         tags: tags, by: '我上传', date: new Date().toISOString().slice(0,10)
       };
       var jobs = [];
