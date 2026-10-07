@@ -1,6 +1,6 @@
 # 分镜大师 · 技能与创作知识库
 
-在线打开：**https://__LOGIN__.github.io/fenjing-dashi/**
+在线打开：**https://guantou33.github.io/fenjing-dashi/**
 
 一个单文件网页知识库，红白配色，白底为主、红色点缀。电脑手机都能开，长期有效，随更新自动同步。
 
