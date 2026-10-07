@@ -255,35 +255,40 @@ function renderPicks(){
     td4.appendChild(del);
     tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tr.appendChild(td4);
     b.appendChild(tr);
-    if(p.kind === 'image') makeThumb(p, img);
+    if(p.preview) img.src = p.preview;
+    else if(p.processing) img.alt = '处理中…';
+    else if(p.kind === 'image') makeThumb(p, img);
     else makeVideoThumb(p, img);
   });
 }
 
-/* 图片：压到 1600px 长边 + 480px 缩略图 */
+/* 图片：压到 1600px 长边 + 520px 缩略图（都转成 webp Blob） */
 function makeThumb(p, imgEl){
+  p.processing = true;
   var url = URL.createObjectURL(p.file);
   var im = new Image();
   im.onload = function(){
     imgEl.src = url;
-    var full = shrink(im, 1600, 0.86), th = shrink(im, 520, 0.8);
-    p.fullBlob = full; p.thumbBlob = th;
-    p.w = full.w; p.h = full.h;
-    p.ext = 'webp';
-    p.ready = true;
-    p.rowNote = human(full.b.size) + ' → 缩略 ' + human(th.b.size);
-    log('处理好：' + p.title + '（' + p.rowNote + '）');
+    p.preview = url;
+    var full = shrink(im, 1600), th = shrink(im, 520);
+    Promise.all([canvasToBlob(full.c, 0.86), canvasToBlob(th.c, 0.8)]).then(function(bs){
+      p.processing = false;
+      if(!bs[0] || !bs[1]){ log('浏览器不支持 webp 编码，换 Chrome/Edge 再试：' + p.file.name, 'e'); return; }
+      p.fullBlob = bs[0]; p.thumbBlob = bs[1];
+      p.w = full.w; p.h = full.h; p.ready = true;
+      log('处理好：' + p.title + '（大图 ' + human(bs[0].size) + '，缩略 ' + human(bs[1].size) + '）');
+    });
   };
-  im.onerror = function(){ log('图片读取失败：' + p.file.name, 'e'); };
+  im.onerror = function(){ p.processing = false; log('图片读取失败：' + p.file.name, 'e'); };
   im.src = url;
 }
-function shrink(im, maxpx, q){
+function shrink(im, maxpx){
   var w = im.naturalWidth, h = im.naturalHeight;
   var s = Math.min(1, maxpx / Math.max(w, h));
   var c = document.createElement('canvas');
   c.width = Math.max(1, Math.round(w*s)); c.height = Math.max(1, Math.round(h*s));
   c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
-  return {w:c.width, h:c.height, c:c, b:null};
+  return {w:c.width, h:c.height, c:c};
 }
 function canvasToBlob(c, q){
   return new Promise(function(res){
@@ -292,6 +297,7 @@ function canvasToBlob(c, q){
 }
 /* 视频：抽 0.6 秒那帧当封面 */
 function makeVideoThumb(p, imgEl){
+  p.processing = true;
   var v = document.createElement('video');
   v.preload = 'metadata'; v.muted = true; v.playsInline = true;
   v.src = URL.createObjectURL(p.file);
@@ -304,12 +310,14 @@ function makeVideoThumb(p, imgEl){
     c.width = Math.round(v.videoWidth*s); c.height = Math.round(v.videoHeight*s);
     c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
     canvasToBlob(c, 0.82).then(function(b){
+      p.processing = false;
       p.thumbBlob = b; p.dur = Math.round(v.duration || 0);
-      imgEl.src = URL.createObjectURL(b);
+      p.preview = URL.createObjectURL(b);
+      imgEl.src = p.preview;
       p.ready = true; log('封面抽好：' + p.title + '（' + p.dur + 's）');
     });
   };
-  v.onerror = function(){ log('视频读取失败：' + p.file.name, 'e'); };
+  v.onerror = function(){ p.processing = false; log('视频读取失败：' + p.file.name, 'e'); };
 }
 
 /* ---------- base64 ---------- */
@@ -398,8 +406,7 @@ document.getElementById('go').onclick = function(){
       } else {
         entry.full = base + '.webp'; entry.thumb = base + '-t.webp';
         if(p.w) entry.w = p.w;
-        jobs.push(canvasToBlob(p.fullBlob.c, 0.86).then(function(b){ return blob2b64(b); })
-          .then(function(b){ files.push({path:entry.full, b64:b}); }));
+        jobs.push(blob2b64(p.fullBlob).then(function(b){ files.push({path:entry.full, b64:b}); }));
         jobs.push(blob2b64(p.thumbBlob).then(function(b){ files.push({path:entry.thumb, b64:b}); }));
       }
       return Promise.all(jobs).then(function(){
