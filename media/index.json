@@ -1,0 +1,351 @@
+[
+ {
+  "id": "mo1",
+  "type": "image",
+  "cat": "建模 · 三视图",
+  "title": "建模参考 1",
+  "caption": "角色/道具建模参考图，点开看大图。",
+  "thumb": "media/t/mo1.webp",
+  "full": "media/f/mo1.webp",
+  "w": 900,
+  "tags": [
+   "建模",
+   "三视图",
+   "参考"
+  ],
+  "bytes": 127102,
+  "demo": true
+ },
+ {
+  "id": "mo2",
+  "type": "image",
+  "cat": "建模 · 三视图",
+  "title": "建模参考 2",
+  "caption": "角色/道具建模参考图，点开看大图。",
+  "thumb": "media/t/mo2.webp",
+  "full": "media/f/mo2.webp",
+  "w": 1600,
+  "tags": [
+   "建模",
+   "三视图",
+   "参考"
+  ],
+  "bytes": 69572,
+  "demo": true
+ },
+ {
+  "id": "mo3",
+  "type": "image",
+  "cat": "建模 · 三视图",
+  "title": "建模参考 3",
+  "caption": "角色/道具建模参考图，点开看大图。",
+  "thumb": "media/t/mo3.webp",
+  "full": "media/f/mo3.webp",
+  "w": 900,
+  "tags": [
+   "建模",
+   "三视图",
+   "参考"
+  ],
+  "bytes": 126506,
+  "demo": true
+ },
+ {
+  "id": "mo4",
+  "type": "image",
+  "cat": "建模 · 三视图",
+  "title": "建模参考 4",
+  "caption": "角色/道具建模参考图，点开看大图。",
+  "thumb": "media/t/mo4.webp",
+  "full": "media/f/mo4.webp",
+  "w": 1600,
+  "tags": [
+   "建模",
+   "三视图",
+   "参考"
+  ],
+  "bytes": 122744,
+  "demo": true
+ },
+ {
+  "id": "ref1",
+  "type": "image",
+  "cat": "参考学习 · 真人感",
+  "title": "男性真人感 九宫格 1",
+  "caption": "外部参考片拆解九宫格：光比、皮肤质感、镜头语言。",
+  "thumb": "media/t/ref1.webp",
+  "full": "media/f/ref1.webp",
+  "tags": [
+   "参考学习",
+   "真人感",
+   "九宫格"
+  ],
+  "bytes": 66574,
+  "demo": true
+ },
+ {
+  "id": "ref2",
+  "type": "image",
+  "cat": "参考学习 · 真人感",
+  "title": "男性真人感 九宫格 2",
+  "caption": "外部参考片拆解九宫格：光比、皮肤质感、镜头语言。",
+  "thumb": "media/t/ref2.webp",
+  "full": "media/f/ref2.webp",
+  "tags": [
+   "参考学习",
+   "真人感",
+   "九宫格"
+  ],
+  "bytes": 61014,
+  "demo": true
+ },
+ {
+  "id": "ref3",
+  "type": "image",
+  "cat": "参考学习 · 真人感",
+  "title": "男性真人感 九宫格 3",
+  "caption": "外部参考片拆解九宫格：光比、皮肤质感、镜头语言。",
+  "thumb": "media/t/ref3.webp",
+  "full": "media/f/ref3.webp",
+  "tags": [
+   "参考学习",
+   "真人感",
+   "九宫格"
+  ],
+  "bytes": 49782,
+  "demo": true
+ },
+ {
+  "id": "ref4",
+  "type": "image",
+  "cat": "参考学习 · 真人感",
+  "title": "男性真人感 九宫格 4",
+  "caption": "外部参考片拆解九宫格：光比、皮肤质感、镜头语言。",
+  "thumb": "media/t/ref4.webp",
+  "full": "media/f/ref4.webp",
+  "tags": [
+   "参考学习",
+   "真人感",
+   "九宫格"
+  ],
+  "bytes": 46602,
+  "demo": true
+ },
+ {
+  "id": "refFrames",
+  "type": "frames",
+  "cat": "参考学习 · 真人感",
+  "title": "逐帧序列 · 40 帧",
+  "caption": "参考片逐帧拆解，用来研究真人感的运动与光学细节。",
+  "thumb": "media/t/refF01.webp",
+  "count": 40,
+  "frames": [
+   {
+    "t": "media/t/refF01.webp",
+    "f": "media/f/refF01.webp",
+    "name": "f01_0.3.png"
+   },
+   {
+    "t": "media/t/refF02.webp",
+    "f": "media/f/refF02.webp",
+    "name": "f02_1.4.png"
+   },
+   {
+    "t": "media/t/refF03.webp",
+    "f": "media/f/refF03.webp",
+    "name": "f03_2.3.png"
+   },
+   {
+    "t": "media/t/refF04.webp",
+    "f": "media/f/refF04.webp",
+    "name": "f04_3.0.png"
+   },
+   {
+    "t": "media/t/refF05.webp",
+    "f": "media/f/refF05.webp",
+    "name": "f05_3.9.png"
+   },
+   {
+    "t": "media/t/refF06.webp",
+    "f": "media/f/refF06.webp",
+    "name": "f06_4.6.png"
+   },
+   {
+    "t": "media/t/refF07.webp",
+    "f": "media/f/refF07.webp",
+    "name": "f07_6.5.png"
+   },
+   {
+    "t": "media/t/refF08.webp",
+    "f": "media/f/refF08.webp",
+    "name": "f08_8.5.png"
+   },
+   {
+    "t": "media/t/refF09.webp",
+    "f": "media/f/refF09.webp",
+    "name": "f09_9.7.png"
+   },
+   {
+    "t": "media/t/refF10.webp",
+    "f": "media/f/refF10.webp",
+    "name": "f10_10.5.png"
+   },
+   {
+    "t": "media/t/refF11.webp",
+    "f": "media/f/refF11.webp",
+    "name": "f11_12.5.png"
+   },
+   {
+    "t": "media/t/refF12.webp",
+    "f": "media/f/refF12.webp",
+    "name": "f12_14.8.png"
+   },
+   {
+    "t": "media/t/refF13.webp",
+    "f": "media/f/refF13.webp",
+    "name": "f13_16.5.png"
+   },
+   {
+    "t": "media/t/refF14.webp",
+    "f": "media/f/refF14.webp",
+    "name": "f14_19.0.png"
+   },
+   {
+    "t": "media/t/refF15.webp",
+    "f": "media/f/refF15.webp",
+    "name": "f15_22.0.png"
+   },
+   {
+    "t": "media/t/refF16.webp",
+    "f": "media/f/refF16.webp",
+    "name": "f16_23.8.png"
+   },
+   {
+    "t": "media/t/refF17.webp",
+    "f": "media/f/refF17.webp",
+    "name": "f17_25.0.png"
+   },
+   {
+    "t": "media/t/refF18.webp",
+    "f": "media/f/refF18.webp",
+    "name": "f18_26.3.png"
+   },
+   {
+    "t": "media/t/refF19.webp",
+    "f": "media/f/refF19.webp",
+    "name": "f19_27.5.png"
+   },
+   {
+    "t": "media/t/refF20.webp",
+    "f": "media/f/refF20.webp",
+    "name": "f20_30.0.png"
+   },
+   {
+    "t": "media/t/refF21.webp",
+    "f": "media/f/refF21.webp",
+    "name": "f21_33.0.png"
+   },
+   {
+    "t": "media/t/refF22.webp",
+    "f": "media/f/refF22.webp",
+    "name": "f22_36.0.png"
+   },
+   {
+    "t": "media/t/refF23.webp",
+    "f": "media/f/refF23.webp",
+    "name": "f23_38.5.png"
+   },
+   {
+    "t": "media/t/refF24.webp",
+    "f": "media/f/refF24.webp",
+    "name": "f24_40.0.png"
+   },
+   {
+    "t": "media/t/refF25.webp",
+    "f": "media/f/refF25.webp",
+    "name": "f25_41.5.png"
+   },
+   {
+    "t": "media/t/refF26.webp",
+    "f": "media/f/refF26.webp",
+    "name": "f26_43.0.png"
+   },
+   {
+    "t": "media/t/refF27.webp",
+    "f": "media/f/refF27.webp",
+    "name": "f27_46.0.png"
+   },
+   {
+    "t": "media/t/refF28.webp",
+    "f": "media/f/refF28.webp",
+    "name": "f28_49.0.png"
+   },
+   {
+    "t": "media/t/refF29.webp",
+    "f": "media/f/refF29.webp",
+    "name": "f29_51.5.png"
+   },
+   {
+    "t": "media/t/refF30.webp",
+    "f": "media/f/refF30.webp",
+    "name": "f30_53.2.png"
+   },
+   {
+    "t": "media/t/refF31.webp",
+    "f": "media/f/refF31.webp",
+    "name": "f31_54.5.png"
+   },
+   {
+    "t": "media/t/refF32.webp",
+    "f": "media/f/refF32.webp",
+    "name": "f32_55.7.png"
+   },
+   {
+    "t": "media/t/refF33.webp",
+    "f": "media/f/refF33.webp",
+    "name": "f33_57.0.png"
+   },
+   {
+    "t": "media/t/refF34.webp",
+    "f": "media/f/refF34.webp",
+    "name": "f34_60.0.png"
+   },
+   {
+    "t": "media/t/refF35.webp",
+    "f": "media/f/refF35.webp",
+    "name": "f35_64.0.png"
+   },
+   {
+    "t": "media/t/refF36.webp",
+    "f": "media/f/refF36.webp",
+    "name": "f36_68.0.png"
+   },
+   {
+    "t": "media/t/refF37.webp",
+    "f": "media/f/refF37.webp",
+    "name": "f37_73.0.png"
+   },
+   {
+    "t": "media/t/refF38.webp",
+    "f": "media/f/refF38.webp",
+    "name": "f38_78.0.png"
+   },
+   {
+    "t": "media/t/refF39.webp",
+    "f": "media/f/refF39.webp",
+    "name": "f39_83.0.png"
+   },
+   {
+    "t": "media/t/refF40.webp",
+    "f": "media/f/refF40.webp",
+    "name": "f40_85.5.png"
+   }
+  ],
+  "tags": [
+   "参考学习",
+   "逐帧",
+   "真人感"
+  ],
+  "demo": true
+ }
+]

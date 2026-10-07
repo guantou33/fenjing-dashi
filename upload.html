@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>上传作品 · 知识库</title>
+<style>
+:root{--red:#C8102E;--red-d:#9E0C24;--red-bg:#FFF5F6;--red-line:#F3C9D0;
+  --ink:#17171B;--ink2:#5A5A66;--ink3:#8E8E9B;--line:#E8E8EE;--soft:#FAFAFC}
+*{box-sizing:border-box}
+body{margin:0;background:#F7F7F9;color:var(--ink);
+  font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+a{color:var(--red);text-decoration:none}
+.top{background:linear-gradient(135deg,var(--red),#8E0A20);color:#fff;padding:22px 16px}
+.top .w{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.top b{font-size:20px;letter-spacing:.5px}
+.top span{opacity:.85;font-size:13px}
+.top .sp{flex:1}
+.top a{color:#fff;border:1px solid rgba(255,255,255,.5);padding:6px 12px;border-radius:8px;font-size:13px}
+.wrap{max-width:880px;margin:0 auto;padding:16px 14px 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.card h2{margin:0 0 4px;font-size:16px}
+.card h2 em{font-style:normal;color:var(--ink3);font-size:12px;font-weight:400;margin-left:6px}
+.card p.hint{margin:0 0 12px;color:var(--ink2);font-size:12.8px;line-height:1.7}
+label{display:block;font-size:12.5px;color:var(--ink2);margin:10px 0 4px}
+input[type=text],input[type=password],select,textarea{
+  width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:14px;
+  font-family:inherit;background:#fff;color:var(--ink)}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px var(--red-bg)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>div{flex:1;min-width:150px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--red);background:var(--red);color:#fff;
+  padding:9px 16px;border-radius:9px;font-size:13.5px;cursor:pointer;font-family:inherit}
+.btn:hover{background:var(--red-d)}
+.btn.ghost{background:#fff;color:var(--red)}
+.btn.ghost:hover{background:var(--red-bg)}
+.btn.gray{background:#fff;color:var(--ink2);border-color:var(--line)}
+.btn.gray:hover{background:var(--soft)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.drop{border:2px dashed var(--red-line);border-radius:14px;background:var(--red-bg);
+  padding:26px 14px;text-align:center;color:var(--ink2);font-size:13.5px;cursor:pointer;transition:.15s}
+.drop.on{border-color:var(--red);background:#FFEBEE}
+.drop b{color:var(--red);display:block;font-size:15px;margin-bottom:4px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{color:var(--ink3);font-weight:400;font-size:12px}
+td img{width:64px;height:40px;object-fit:cover;border-radius:6px;background:#F4F4F6;display:block}
+td input{padding:6px 8px;font-size:13px}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--red-bg);
+  color:var(--red);border:1px solid var(--red-line)}
+.log{background:#17171B;color:#D7F5DC;font:12px/1.7 ui-monospace,Consolas,monospace;border-radius:10px;
+  padding:10px 12px;max-height:230px;overflow:auto;white-space:pre-wrap;word-break:break-all;margin-top:10px}
+.log .e{color:#FF9AA6}
+.log .k{color:#9AD7FF}
+.st{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2);margin-top:8px}
+.st i{width:8px;height:8px;border-radius:50%;background:var(--ink3);flex:none}
+.st.ok i{background:#1FA85B}.st.bad i{background:var(--red)}
+.warn{background:#FFF8E6;border:1px solid #F2DDA8;color:#7A5B12;border-radius:10px;padding:9px 12px;
+  font-size:12.6px;line-height:1.7;margin:10px 0}
+.warn b{color:#8A5A00}
+.wlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-top:10px}
+.wcard{border:1px solid var(--line);border-radius:11px;overflow:hidden;background:#fff}
+.wcard img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:#F4F4F6}
+.wcard .b{padding:8px 10px}
+.wcard h4{margin:0 0 2px;font-size:13px}
+.wcard small{color:var(--ink3);font-size:11px}
+.wcard .d{margin-top:6px;font-size:11.5px;color:var(--red);cursor:pointer;border:1px solid var(--red-line);
+  border-radius:7px;padding:2px 8px;background:#fff;display:inline-block}
+code{background:var(--soft);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="top"><div class="w">
+  <b>上传作品</b><span>传到自己的知识库站点，不用经过别人</span>
+  <span class="sp"></span>
+  <a href="index.html">&#8592; 回知识库</a>
+</div></div>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2>1 · 连接你的仓库 <em>第一次填一次，之后自动记住</em></h2>
+    <p class="hint">这个页面直接调 GitHub 接口把文件写进你自己的仓库，再自动更新站点。token 只存在你这台设备的浏览器里（localStorage），不会发给任何人。</p>
+    <div class="row">
+      <div><label>仓库</label><input type="text" id="repo" placeholder="用户名/仓库名"></div>
+      <div><label>分支（留空自动识别）</label><input type="text" id="branch" placeholder="main"></div>
+    </div>
+    <label>访问令牌 token</label>
+    <input type="password" id="token" placeholder="粘贴 GitHub token（只需 Contents 读写权限）">
+    <div class="row" style="margin-top:10px;align-items:center">
+      <div><button class="btn" id="save">保存并检测连接</button></div>
+      <div><button class="btn gray" id="forget">清除本机保存的 token</button></div>
+    </div>
+    <div class="st" id="conn"><i></i><span>还没连接</span></div>
+    <div class="warn"><b>怎么拿 token：</b>GitHub 头像 → Settings → Developer settings → Personal access tokens →
+      <b>Fine-grained tokens</b> → Generate new token → 只勾选这一个仓库 → Repository permissions 里把
+      <b>Contents</b> 设成 <b>Read and write</b> → 生成后复制（<code>github_pat_…</code>）粘到上面。
+      别用带 <code>delete_repo</code> 之类全权限的旧式 token，也别把这个页面链接连 token 一起发给别人。</div>
+  </div>
+
+  <div class="card">
+    <h2>2 · 挑文件 <em>图片 / 视频都行，可多选</em></h2>
+    <p class="hint">图片会自动压成网页用的体积并生成缩略图；视频会抽第一帧当封面。上传后首页「作品表 · 图库」里就能看到，点开是大图/播放器。</p>
+    <div class="drop" id="drop"><b>拖文件到这里</b>或点一下选择文件（也可直接粘贴截图）</div>
+    <input type="file" id="file" multiple accept="image/*,video/*" style="display:none">
+    <div class="row" style="margin-top:12px">
+      <div><label>这批作品的分类（会显示在卡片上）</label><input type="text" id="cat" placeholder="例如：建模 / 真人感测试 / 短片截图"></div>
+      <div><label>标签（逗号分隔）</label><input type="text" id="tags" placeholder="例如：参考,九宫格"></div>
+    </div>
+    <div id="pickWrap" style="display:none;margin-top:12px">
+      <table><thead><tr><th style="width:76px">预览</th><th>标题（可改）</th><th style="width:82px">大小</th><th style="width:52px"></th></tr></thead>
+      <tbody id="pickBody"></tbody></table>
+      <div class="row" style="margin-top:12px">
+        <div><button class="btn" id="go">&#8679; 开始上传</button></div>
+        <div><button class="btn gray" id="clear">清空列表</button></div>
+      </div>
+    </div>
+    <div class="log" id="log" style="display:none"></div>
+  </div>
+
+  <div class="card">
+    <h2>3 · 我传过的作品 <em>可以在这里删</em></h2>
+    <p class="hint">删掉会同时删除仓库里的文件和作品表里的记录。示例数据（标注「示例」的那些）不在这里，需要我帮你删就说一声。</p>
+    <button class="btn ghost" id="reload">刷新列表</button>
+    <div class="wlist" id="wlist"></div>
+  </div>
+
+</div>
+
+<script>
+var LS_KEY = 'kb_upload_cfg_v1';
+var cfg = {repo:'', branch:'', token:''};
+var picks = [];   // {file, title, thumbBlob, dataB64, kind}
+var logEl = document.getElementById('log');
+
+function log(s, cls){
+  logEl.style.display = 'block';
+  var t = new Date().toTimeString().slice(0,8);
+  var d = document.createElement('div');
+  if(cls) d.className = cls;
+  d.textContent = '[' + t + '] ' + s;
+  logEl.appendChild(d); logEl.scrollTop = logEl.scrollHeight;
+}
+function setConn(txt, cls){
+  var e = document.getElementById('conn');
+  e.className = 'st' + (cls ? ' ' + cls : '');
+  e.querySelector('span').textContent = txt;
+}
+function loadCfg(){
+  try{ var j = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+    cfg = {repo:j.repo||'', branch:j.branch||'', token:j.token||''}; }catch(e){}
+  document.getElementById('repo').value = cfg.repo;
+  document.getElementById('branch').value = cfg.branch;
+  document.getElementById('token').value = cfg.token;
+  if(cfg.token && cfg.repo) testConn();
+}
+function saveCfg(){
+  cfg.repo = document.getElementById('repo').value.trim();
+  cfg.branch = document.getElementById('branch').value.trim();
+  cfg.token = document.getElementById('token').value.trim();
+  localStorage.setItem(LS_KEY, JSON.stringify(cfg));
+}
+
+function api(path, opt){
+  opt = opt || {};
+  var url = 'https://api.github.com/repos/' + cfg.repo + path;
+  var h = {'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};
+  if(cfg.token) h['Authorization'] = 'Bearer ' + cfg.token;
+  for(var k in (opt.headers||{})) h[k] = opt.headers[k];
+  return fetch(url, {method: opt.method || 'GET', headers: h, body: opt.body})
+    .then(function(r){
+      return r.text().then(function(t){
+        if(!r.ok) throw new Error(r.status + ' ' + t.slice(0, 260));
+        return t ? JSON.parse(t) : null;
+      });
+    });
+}
+
+function testConn(){
+  saveCfg();
+  if(!cfg.repo || !cfg.token){ setConn('仓库和 token 都要填', 'bad'); return; }
+  setConn('检测中…');
+  api('').then(function(info){
+    if(!cfg.branch){ cfg.branch = info.default_branch; document.getElementById('branch').value = cfg.branch;
+      localStorage.setItem(LS_KEY, JSON.stringify(cfg)); }
+    return api('/contents/media/works.json?ref=' + encodeURIComponent(cfg.branch))
+      .then(function(){ return info; })
+      .catch(function(){ return info; });
+  }).then(function(info){
+    setConn('已连接：' + info.full_name + '（分支 ' + cfg.branch + '，'
+      + (info.private ? '私有' : '公开') + '，站点 ' + (info.has_pages ? '已开 Pages' : '未开 Pages') + '）', 'ok');
+    loadWorks();
+  }).catch(function(e){
+    setConn('连接失败：' + e.message, 'bad');
+  });
+}
+document.getElementById('save').onclick = testConn;
+document.getElementById('forget').onclick = function(){
+  localStorage.removeItem(LS_KEY); cfg = {repo:'',branch:'',token:''};
+  document.getElementById('token').value = ''; setConn('已清除本机保存的 token', '');
+};
+
+/* ---------- 选文件 ---------- */
+var drop = document.getElementById('drop'), fileEl = document.getElementById('file');
+drop.onclick = function(){ fileEl.click(); };
+fileEl.onchange = function(){ addFiles(fileEl.files); fileEl.value = ''; };
+['dragenter','dragover'].forEach(function(t){
+  drop.addEventListener(t, function(e){ e.preventDefault(); drop.classList.add('on'); });
+});
+['dragleave','drop'].forEach(function(t){
+  drop.addEventListener(t, function(e){ e.preventDefault(); drop.classList.remove('on'); });
+});
+drop.addEventListener('drop', function(e){
+  if(e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files);
+});
+document.addEventListener('paste', function(e){
+  var items = (e.clipboardData||{}).items || [];
+  var fs = [];
+  for(var i=0;i<items.length;i++){
+    if(items[i].kind === 'file'){ var f = items[i].getAsFile(); if(f) fs.push(f); }
+  }
+  if(fs.length) addFiles(fs);
+});
+
+function human(n){ return n > 1048576 ? (n/1048576).toFixed(1)+' MB' : Math.round(n/1024)+' KB'; }
+
+function addFiles(list){
+  Array.prototype.forEach.call(list, function(f){
+    if(!/^image\/|^video\//.test(f.type)){ log('跳过（不是图片/视频）：' + f.name, 'e'); return; }
+    picks.push({file:f, title:f.name.replace(/\.[^.]+$/, ''), kind: f.type.indexOf('video')===0 ? 'video' : 'image'});
+  });
+  renderPicks();
+}
+function renderPicks(){
+  var w = document.getElementById('pickWrap'), b = document.getElementById('pickBody');
+  w.style.display = picks.length ? 'block' : 'none';
+  b.innerHTML = '';
+  picks.forEach(function(p, i){
+    var tr = document.createElement('tr');
+    var td1 = document.createElement('td');
+    var img = document.createElement('img');
+    if(p.kind === 'image'){ img.src = URL.createObjectURL(p.file); }
+    td1.appendChild(img);
+    var td2 = document.createElement('td');
+    var inp = document.createElement('input');
+    inp.type = 'text'; inp.value = p.title;
+    inp.oninput = function(){ p.title = inp.value; };
+    td2.appendChild(inp);
+    var td3 = document.createElement('td');
+    td3.innerHTML = '<span class="pill">' + human(p.file.size) + '</span>';
+    var td4 = document.createElement('td');
+    var del = document.createElement('button');
+    del.className = 'btn gray'; del.textContent = '×';
+    del.onclick = function(){ picks.splice(i,1); renderPicks(); };
+    td4.appendChild(del);
+    tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tr.appendChild(td4);
+    b.appendChild(tr);
+    if(p.kind === 'image') makeThumb(p, img);
+    else makeVideoThumb(p, img);
+  });
+}
+
+/* 图片：压到 1600px 长边 + 480px 缩略图 */
+function makeThumb(p, imgEl){
+  var url = URL.createObjectURL(p.file);
+  var im = new Image();
+  im.onload = function(){
+    imgEl.src = url;
+    var full = shrink(im, 1600, 0.86), th = shrink(im, 520, 0.8);
+    p.fullBlob = full; p.thumbBlob = th;
+    p.w = full.w; p.h = full.h;
+    p.ext = 'webp';
+    p.ready = true;
+    p.rowNote = human(full.b.size) + ' → 缩略 ' + human(th.b.size);
+    log('处理好：' + p.title + '（' + p.rowNote + '）');
+  };
+  im.onerror = function(){ log('图片读取失败：' + p.file.name, 'e'); };
+  im.src = url;
+}
+function shrink(im, maxpx, q){
+  var w = im.naturalWidth, h = im.naturalHeight;
+  var s = Math.min(1, maxpx / Math.max(w, h));
+  var c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(w*s)); c.height = Math.max(1, Math.round(h*s));
+  c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+  return {w:c.width, h:c.height, c:c, b:null};
+}
+function canvasToBlob(c, q){
+  return new Promise(function(res){
+    c.toBlob(function(b){ res(b); }, 'image/webp', q);
+  });
+}
+/* 视频：抽 0.6 秒那帧当封面 */
+function makeVideoThumb(p, imgEl){
+  var v = document.createElement('video');
+  v.preload = 'metadata'; v.muted = true; v.playsInline = true;
+  v.src = URL.createObjectURL(p.file);
+  v.onloadeddata = function(){
+    try{ v.currentTime = Math.min(0.6, (v.duration||1)/3); }catch(e){}
+  };
+  v.onseeked = function(){
+    var c = document.createElement('canvas');
+    var s = Math.min(1, 900 / v.videoWidth);
+    c.width = Math.round(v.videoWidth*s); c.height = Math.round(v.videoHeight*s);
+    c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+    canvasToBlob(c, 0.82).then(function(b){
+      p.thumbBlob = b; p.dur = Math.round(v.duration || 0);
+      imgEl.src = URL.createObjectURL(b);
+      p.ready = true; log('封面抽好：' + p.title + '（' + p.dur + 's）');
+    });
+  };
+  v.onerror = function(){ log('视频读取失败：' + p.file.name, 'e'); };
+}
+
+/* ---------- base64 ---------- */
+function ab2b64(buf){
+  var bytes = new Uint8Array(buf), out = '', chunk = 0x8000;
+  for(var i=0;i<bytes.length;i+=chunk){
+    out += String.fromCharCode.apply(null, bytes.subarray(i, i+chunk));
+  }
+  return btoa(out);
+}
+function blob2b64(b){
+  return new Promise(function(res, rej){
+    var fr = new FileReader();
+    fr.onload = function(){ res(String(fr.result).split(',')[1]); };
+    fr.onerror = rej;
+    fr.readAsDataURL(b);
+  });
+}
+
+/* ---------- 一次提交写多个文件 ---------- */
+function commitFiles(files, message){
+  var refSha, baseTree;
+  return api('/git/ref/heads/' + encodeURIComponent(cfg.branch))
+    .then(function(ref){
+      refSha = ref.object.sha;
+      return api('/git/commits/' + refSha);
+    })
+    .then(function(c){ baseTree = c.tree.sha; return files; })
+    .then(function(fs){
+      var tree = [], i = 0;
+      function next(){
+        if(i >= fs.length) return Promise.resolve(tree);
+        var f = fs[i++];
+        if(f.remove){ tree.push({path:f.path, mode:'100644', type:'blob', sha:null}); return next(); }
+        return api('/git/blobs', {method:'POST', body: JSON.stringify({content:f.b64, encoding:'base64'})})
+          .then(function(bl){ tree.push({path:f.path, mode:'100644', type:'blob', sha:bl.sha}); return next(); });
+      }
+      return next();
+    })
+    .then(function(tree){
+      return api('/git/trees', {method:'POST', body: JSON.stringify({base_tree:baseTree, tree:tree})});
+    })
+    .then(function(t){
+      return api('/git/commits', {method:'POST',
+        body: JSON.stringify({message:message, tree:t.sha, parents:[refSha]})});
+    })
+    .then(function(c){
+      return api('/git/refs/heads/' + encodeURIComponent(cfg.branch), {method:'PATCH',
+        body: JSON.stringify({sha:c.sha})});
+    });
+}
+
+function fetchWorks(){
+  var u = 'https://raw.githubusercontent.com/' + cfg.repo + '/' + cfg.branch
+        + '/media/works.json?t=' + Date.now();
+  return fetch(u, {cache:'no-store'}).then(function(r){ return r.ok ? r.json() : {works:[]}; })
+    .catch(function(){ return {works:[]}; });
+}
+
+/* ---------- 上传 ---------- */
+document.getElementById('go').onclick = function(){
+  if(!cfg.token || !cfg.repo){ log('先去第 1 步连上仓库', 'e'); return; }
+  if(!picks.length){ log('先挑文件', 'e'); return; }
+  var cat = document.getElementById('cat').value.trim();
+  var tags = document.getElementById('tags').value.split(/[,，]/).map(function(s){ return s.trim(); })
+    .filter(function(s){ return s; });
+  var btn = this; btn.disabled = true;
+  log('=== 开始上传 ' + picks.length + ' 个文件 ===', 'k');
+
+  var files = [], manifestAdd = [], stamp = Date.now();
+  var chain = Promise.resolve();
+  picks.forEach(function(p, i){
+    chain = chain.then(function(){
+      if(!p.ready){ log('还在处理，等一下再传：' + p.title, 'e'); return null; }
+      var base = 'media/u/' + stamp + '-' + (i+1) + '-' + p.title.replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,40);
+      var entry = {
+        type: p.kind, cat: cat, title: p.title, caption: '',
+        tags: tags, by: '我上传', date: new Date().toISOString().slice(0,10)
+      };
+      var jobs = [];
+      if(p.kind === 'video'){
+        entry.full = base + '.mp4'; entry.thumb = base + '.webp';
+        if(p.dur) entry.dur = p.dur;
+        jobs.push(blob2b64(p.file).then(function(b){ files.push({path:entry.full, b64:b}); }));
+        jobs.push(blob2b64(p.thumbBlob).then(function(b){ files.push({path:entry.thumb, b64:b}); }));
+      } else {
+        entry.full = base + '.webp'; entry.thumb = base + '-t.webp';
+        if(p.w) entry.w = p.w;
+        jobs.push(canvasToBlob(p.fullBlob.c, 0.86).then(function(b){ return blob2b64(b); })
+          .then(function(b){ files.push({path:entry.full, b64:b}); }));
+        jobs.push(blob2b64(p.thumbBlob).then(function(b){ files.push({path:entry.thumb, b64:b}); }));
+      }
+      return Promise.all(jobs).then(function(){
+        manifestAdd.push(entry);
+        log('打包好：' + entry.title + '（' + files.length + ' 个文件入队）');
+      });
+    });
+  });
+
+  chain
+    .then(function(){ return fetchWorks(); })
+    .then(function(cur){
+      var w = (cur && cur.works) ? cur.works : [];
+      var all = manifestAdd.concat(w);
+      var json = JSON.stringify({works: all}, null, 1);
+      var b64 = btoa(unescape(encodeURIComponent(json)));
+      files.push({path:'media/works.json', b64:b64});
+      log('提交 ' + files.length + ' 个文件到 ' + cfg.branch + ' …', 'k');
+      return commitFiles(files, '上传作品：' + manifestAdd.map(function(e){ return e.title; }).join('、').slice(0,80));
+    })
+    .then(function(){
+      log('✅ 上传成功。GitHub Pages 重建约 1 分钟，之后刷新首页就能看到。', 'k');
+      picks = []; renderPicks(); loadWorks();
+    })
+    .catch(function(e){
+      log('❌ 失败：' + e.message, 'e');
+    })
+    .then(function(){ btn.disabled = false; });
+};
+document.getElementById('clear').onclick = function(){ picks = []; renderPicks(); };
+
+/* ---------- 已上传列表 / 删除 ---------- */
+function loadWorks(){
+  var box = document.getElementById('wlist');
+  if(!cfg.repo || !cfg.token){ box.innerHTML = '<p class="hint">先在第 1 步连上仓库。</p>'; return; }
+  box.innerHTML = '<p class="hint">读取中…</p>';
+  fetchWorks().then(function(j){
+    var ws = (j && j.works) ? j.works : [];
+    if(!ws.length){ box.innerHTML = '<p class="hint">还没有你上传的作品。</p>'; return; }
+    box.innerHTML = '';
+    ws.forEach(function(it){
+      var c = document.createElement('div'); c.className = 'wcard';
+      var img = document.createElement('img'); img.src = it.thumb || ''; img.loading = 'lazy';
+      var b = document.createElement('div'); b.className = 'b';
+      var h = document.createElement('h4'); h.textContent = it.title || '(无标题)';
+      var s = document.createElement('small');
+      s.textContent = (it.type === 'video' ? '视频' : '图片') + (it.cat ? ' · ' + it.cat : '')
+        + (it.date ? ' · ' + it.date : '');
+      var d = document.createElement('span'); d.className = 'd'; d.textContent = '删除';
+      d.onclick = function(){
+        if(!confirm('删除「' + (it.title||'') + '」？仓库里的文件和记录都会删掉。')) return;
+        var files = [{path: it.full, remove:true}];
+        if(it.thumb) files.push({path: it.thumb, remove:true});
+        fetchWorks().then(function(cur){
+          var left = ((cur && cur.works) ? cur.works : []).filter(function(x){
+            return !(x.full === it.full && x.title === it.title); });
+          var b64 = btoa(unescape(encodeURIComponent(JSON.stringify({works:left}, null, 1))));
+          files.push({path:'media/works.json', b64:b64});
+          return commitFiles(files, '删除作品：' + (it.title||''));
+        }).then(function(){
+          log('已删除：' + (it.title||''), 'k'); loadWorks();
+        }).catch(function(e){ log('删除失败：' + e.message, 'e'); });
+      };
+      b.appendChild(h); b.appendChild(s); b.appendChild(d);
+      c.appendChild(img); c.appendChild(b);
+      box.appendChild(c);
+    });
+  });
+}
+document.getElementById('reload').onclick = loadWorks;
+loadCfg();
+</script>
+</body>
+</html>
