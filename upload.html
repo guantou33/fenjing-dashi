@@ -78,24 +78,27 @@ code{background:var(--soft);border:1px solid var(--line);border-radius:5px;paddi
 
 <div class="wrap">
 
-  <div class="card">
-    <h2>1 · 连接你的仓库 <em>第一次填一次，之后自动记住</em></h2>
-    <p class="hint">这个页面直接调 GitHub 接口把文件写进你自己的仓库，再自动更新站点。token 只存在你这台设备的浏览器里（localStorage），不会发给任何人。</p>
-    <div class="row">
-      <div><label>仓库</label><input type="text" id="repo" placeholder="用户名/仓库名"></div>
-      <div><label>分支（留空自动识别）</label><input type="text" id="branch" placeholder="main"></div>
-    </div>
-    <label>访问令牌 token</label>
-    <input type="password" id="token" placeholder="粘贴 GitHub token（只需 Contents 读写权限）">
-    <div class="row" style="margin-top:10px;align-items:center">
-      <div><button class="btn" id="save">保存并检测连接</button></div>
-      <div><button class="btn gray" id="forget">清除本机保存的 token</button></div>
+  <div class="card" id="connCard">
+    <h2>1 · 连接 <em id="connEm">仓库已自动填好，平时不用管</em></h2>
+    <p class="hint">目标仓库/分支已自动填好，不用你建仓库、也不用选仓库。第一次只需要粘一次 GitHub token（只存在你这台设备的浏览器里，不会发给任何人），以后就直接拖文件。</p>
+    <div id="connBody">
+      <div class="row">
+        <div><label>仓库（已自动填）</label><input type="text" id="repo" placeholder="用户名/仓库名"></div>
+        <div><label>分支（已自动填）</label><input type="text" id="branch" placeholder="main"></div>
+      </div>
+      <label>访问令牌 token</label>
+      <input type="password" id="token" placeholder="粘贴 GitHub token（只需 Contents 读写权限）">
+      <div class="row" style="margin-top:10px;align-items:center">
+        <div><button class="btn" id="save">保存并检测连接</button></div>
+        <div><button class="btn gray" id="forget">清除本机保存的 token</button></div>
+      </div>
+      <div class="warn"><b>怎么拿 token：</b>GitHub 头像 → Settings → Developer settings → Personal access tokens →
+        <b>Fine-grained tokens</b> → Generate new token → 只勾选 <b>fenjing-dashi</b> 这一个仓库 → Repository permissions 里把
+        <b>Contents</b> 设成 <b>Read and write</b> → 生成后复制（<code>github_pat_…</code>）粘到上面。
+        别用带 <code>delete_repo</code> 之类全权限的旧式 token，也别把这个页面链接连 token 一起发给别人。</div>
     </div>
     <div class="st" id="conn"><i></i><span>还没连接</span></div>
-    <div class="warn"><b>怎么拿 token：</b>GitHub 头像 → Settings → Developer settings → Personal access tokens →
-      <b>Fine-grained tokens</b> → Generate new token → 只勾选这一个仓库 → Repository permissions 里把
-      <b>Contents</b> 设成 <b>Read and write</b> → 生成后复制（<code>github_pat_…</code>）粘到上面。
-      别用带 <code>delete_repo</code> 之类全权限的旧式 token，也别把这个页面链接连 token 一起发给别人。</div>
+    <div style="margin-top:8px"><button class="btn gray" id="connTog">展开设置</button></div>
   </div>
 
   <div class="card">
@@ -104,7 +107,12 @@ code{background:var(--soft);border:1px solid var(--line);border-radius:5px;paddi
     <div class="drop" id="drop"><b>拖文件到这里</b>或点一下选择文件（也可直接粘贴截图）</div>
     <input type="file" id="file" multiple accept="image/*,video/*" style="display:none">
     <div class="row" style="margin-top:12px">
+      <div><label>上传到作品库哪个文件夹？（必填，可直接新建）</label>
+        <input type="text" id="folder" list="folderList" placeholder="例如：青苹果短片 / 建模参考 / 真人感测试"></div>
+      <datalist id="folderList"></datalist>
       <div><label>这批作品的分类（会显示在卡片上）</label><input type="text" id="cat" placeholder="例如：建模 / 真人感测试 / 短片截图"></div>
+    </div>
+    <div class="row" style="margin-top:12px">
       <div><label>标签（逗号分隔）</label><input type="text" id="tags" placeholder="例如：参考,九宫格"></div>
     </div>
     <div id="pickWrap" style="display:none;margin-top:12px">
@@ -129,7 +137,9 @@ code{background:var(--soft);border:1px solid var(--line);border-radius:5px;paddi
 
 <script>
 var LS_KEY = 'kb_upload_cfg_v1';
-var cfg = {repo:'', branch:'', token:''};
+var DEFAULT_REPO = 'guantou33/fenjing-dashi';
+var DEFAULT_BRANCH = 'main';
+var cfg = {repo:DEFAULT_REPO, branch:DEFAULT_BRANCH, token:''};
 var picks = [];   // {file, title, thumbBlob, dataB64, kind}
 var logEl = document.getElementById('log');
 
@@ -148,18 +158,32 @@ function setConn(txt, cls){
 }
 function loadCfg(){
   try{ var j = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
-    cfg = {repo:j.repo||'', branch:j.branch||'', token:j.token||''}; }catch(e){}
+    cfg = {repo:j.repo||DEFAULT_REPO, branch:j.branch||DEFAULT_BRANCH, token:j.token||''}; }catch(e){}
   document.getElementById('repo').value = cfg.repo;
   document.getElementById('branch').value = cfg.branch;
   document.getElementById('token').value = cfg.token;
+  applyConnUI();
   if(cfg.token && cfg.repo) testConn();
 }
+/* 有 token 就把「连接」收起来，没 token 就展开让你填 */
+function applyConnUI(){
+  var has = !!cfg.token;
+  document.getElementById('connBody').style.display = has ? 'none' : '';
+  document.getElementById('connTog').textContent = has ? '展开设置' : '收起设置';
+  document.getElementById('connEm').textContent = has ? '已连上，平时不用管' : '粘一次 token 就能用';
+}
 function saveCfg(){
-  cfg.repo = document.getElementById('repo').value.trim();
-  cfg.branch = document.getElementById('branch').value.trim();
+  cfg.repo = document.getElementById('repo').value.trim() || DEFAULT_REPO;
+  cfg.branch = document.getElementById('branch').value.trim() || DEFAULT_BRANCH;
   cfg.token = document.getElementById('token').value.trim();
   localStorage.setItem(LS_KEY, JSON.stringify(cfg));
 }
+document.getElementById('connTog').onclick = function(){
+  var b = document.getElementById('connBody');
+  var open = b.style.display !== 'none';
+  b.style.display = open ? 'none' : '';
+  this.textContent = open ? '展开设置' : '收起设置';
+};
 
 function api(path, opt){
   opt = opt || {};
@@ -178,6 +202,7 @@ function api(path, opt){
 
 function testConn(){
   saveCfg();
+  applyConnUI();
   if(!cfg.repo || !cfg.token){ setConn('仓库和 token 都要填', 'bad'); return; }
   setConn('检测中…');
   api('').then(function(info){
@@ -196,8 +221,10 @@ function testConn(){
 }
 document.getElementById('save').onclick = testConn;
 document.getElementById('forget').onclick = function(){
-  localStorage.removeItem(LS_KEY); cfg = {repo:'',branch:'',token:''};
-  document.getElementById('token').value = ''; setConn('已清除本机保存的 token', '');
+  localStorage.removeItem(LS_KEY); cfg = {repo:DEFAULT_REPO, branch:DEFAULT_BRANCH, token:''};
+  document.getElementById('repo').value = DEFAULT_REPO;
+  document.getElementById('branch').value = DEFAULT_BRANCH;
+  document.getElementById('token').value = ''; applyConnUI(); setConn('已清除本机保存的 token', '');
 };
 
 /* ---------- 选文件 ---------- */
@@ -381,6 +408,15 @@ function fetchWorks(){
 document.getElementById('go').onclick = function(){
   if(!cfg.token || !cfg.repo){ log('先去第 1 步连上仓库', 'e'); return; }
   if(!picks.length){ log('先挑文件', 'e'); return; }
+  var folderEl = document.getElementById('folder');
+  var folder = folderEl.value.trim();
+  if(!folder){
+    log('先填「上传到作品库哪个文件夹」——可以直接打一个新名字，等于新建文件夹', 'e');
+    folderEl.style.borderColor = '#C8102E'; folderEl.focus();
+    return;
+  }
+  folderEl.style.borderColor = '';
+  localStorage.setItem('kb_last_folder', folder);
   var cat = document.getElementById('cat').value.trim();
   var tags = document.getElementById('tags').value.split(/[,，]/).map(function(s){ return s.trim(); })
     .filter(function(s){ return s; });
@@ -392,9 +428,10 @@ document.getElementById('go').onclick = function(){
   picks.forEach(function(p, i){
     chain = chain.then(function(){
       if(!p.ready){ log('还在处理，等一下再传：' + p.title, 'e'); return null; }
-      var base = 'media/u/' + stamp + '-' + (i+1) + '-' + p.title.replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,40);
+      var fdir = 'media/作品库/' + folder.replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,40);
+      var base = fdir + '/' + stamp + '-' + (i+1) + '-' + p.title.replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,40);
       var entry = {
-        type: p.kind, cat: cat, title: p.title, caption: '',
+        type: p.kind, cat: cat, title: p.title, caption: '', folder: folder,
         tags: tags, by: '我上传', date: new Date().toISOString().slice(0,10)
       };
       var jobs = [];
@@ -445,6 +482,11 @@ function loadWorks(){
   box.innerHTML = '<p class="hint">读取中…</p>';
   fetchWorks().then(function(j){
     var ws = (j && j.works) ? j.works : [];
+    /* 作品库文件夹候选（已用过的 + 首页示例的） */
+    var seen = [], dl = document.getElementById('folderList');
+    ws.forEach(function(x){ var f = x.folder; if(f && seen.indexOf(f) < 0) seen.push(f); });
+    ['建模参考','真人感参考'].forEach(function(f){ if(seen.indexOf(f) < 0) seen.push(f); });
+    dl.innerHTML = seen.map(function(f){ return '<option value="' + f.replace(/"/g,'&quot;') + '">'; }).join('');
     if(!ws.length){ box.innerHTML = '<p class="hint">还没有你上传的作品。</p>'; return; }
     box.innerHTML = '';
     ws.forEach(function(it){
@@ -453,7 +495,8 @@ function loadWorks(){
       var b = document.createElement('div'); b.className = 'b';
       var h = document.createElement('h4'); h.textContent = it.title || '(无标题)';
       var s = document.createElement('small');
-      s.textContent = (it.type === 'video' ? '视频' : '图片') + (it.cat ? ' · ' + it.cat : '')
+      s.textContent = (it.type === 'video' ? '视频' : '图片')
+        + (it.folder ? ' · 📁' + it.folder : '') + (it.cat ? ' · ' + it.cat : '')
         + (it.date ? ' · ' + it.date : '');
       var d = document.createElement('span'); d.className = 'd'; d.textContent = '删除';
       d.onclick = function(){
@@ -477,6 +520,7 @@ function loadWorks(){
   });
 }
 document.getElementById('reload').onclick = loadWorks;
+document.getElementById('folder').value = localStorage.getItem('kb_last_folder') || '';
 loadCfg();
 </script>
 </body>

@@ -1,3 +1,19 @@
 {
- "works": []
+ "works": [
+  {
+   "type": "image",
+   "cat": "自测",
+   "title": "kbtest",
+   "caption": "",
+   "folder": "测试文件夹",
+   "tags": [
+    "测试"
+   ],
+   "by": "我上传",
+   "date": "2026-10-08",
+   "full": "media/作品库/测试文件夹/1791400544-1-kbtest.webp",
+   "thumb": "media/作品库/测试文件夹/1791400544-1-kbtest-t.webp",
+   "w": 1200
+  }
+ ]
 }
