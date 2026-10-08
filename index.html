@@ -280,6 +280,11 @@ mark{background:#FFE2E6;color:var(--red-d);border-radius:3px;padding:0 2px}
   padding:2px 6px;border-radius:6px}
 .icard .cov .nf{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;
   padding:2px 6px;border-radius:6px}
+.icard .cov .vfx{position:absolute;right:8px;top:8px;background:rgba(200,16,46,.93);color:#fff;font-size:11px;
+  padding:2px 7px;border-radius:6px;letter-spacing:.3px}
+.lb video{width:100%;max-height:68vh;background:#000}
+.lb .vframes{margin-top:9px}
+.lb .vframes>b{display:block;font-size:12px;color:#A9A9B4;font-weight:400;margin:0 0 2px}
 .icard .bd{padding:11px 13px 13px;display:flex;flex-direction:column;flex:1}
 .icard h3{font-size:14px;margin:0 0 6px;line-height:1.5;font-weight:600;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -447,7 +452,7 @@ mark{background:#FFE2E6;color:var(--red-d);border-radius:3px;padding:0 2px}
   </div>
 
   <div class="foot">
-    本机知识库 · 生成于 2026-10-08 05:49 · 共 137 篇<br>
+    本机知识库 · 生成于 2026-10-08 13:51 · 共 137 篇<br>
     Hermes 技能库 + 自建分镜大师包 + 青苹果与红苹果剧本项目
   </div>
 </div>
@@ -479,6 +484,21 @@ var state = { q:'', group:'', topics:{}, cur:null };
 
 /* ---------------- 工具 ---------------- */
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+/* 媒体路径：站点版直接用 media/xxx；本机单文件版（file:// 双击打开）媒体在 ghpages/ 子目录里 */
+function murl(p){
+  if(!p) return '';
+  p = String(p);
+  if(/^(https?:|data:|blob:|\/)/.test(p)) return p;
+  if(!HOSTED && p.indexOf('media/') === 0) return 'ghpages/' + p;
+  return p;
+}
+function inspFix(it){
+  if(!it) return it;
+  if(it.cover) it.cover = murl(it.cover);
+  if(it.video) it.video = murl(it.video);
+  if(it.frames && it.frames.length) it.frames = it.frames.map(murl);
+  return it;
+}
 function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on');
   clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove('on');},2200); }
 function bytes(n){ return n<1024? n+' B' : n<1048576? (n/1024).toFixed(1)+' KB' : (n/1048576).toFixed(2)+' MB'; }
@@ -556,7 +576,7 @@ function dlDoc(d){
 function dlPack(p){
   var docs = p.docs.map(function(i){ return byId[i]; }).filter(Boolean);
   var fs = zipDocs(docs, p.folder);
-  fs.push({path: p.folder+'/README.md', data: '# '+p.name+'\n\n'+p.desc+'\n\n共 '+docs.length+' 个技能/文档。\n\n把 '+p.folder+' 下的每个子目录复制到你所用 agent 的 skills 目录即可（每个子目录内含 SKILL.md）。\n\n生成时间：2026-10-08 05:49\n'});
+  fs.push({path: p.folder+'/README.md', data: '# '+p.name+'\n\n'+p.desc+'\n\n共 '+docs.length+' 个技能/文档。\n\n把 '+p.folder+' 下的每个子目录复制到你所用 agent 的 skills 目录即可（每个子目录内含 SKILL.md）。\n\n生成时间：2026-10-08 13:51\n'});
   save(zip(fs), p.folder+'.zip');
   toast('已打包 '+docs.length+' 篇：'+p.folder+'.zip');
 }
@@ -564,7 +584,7 @@ function dlTopic(t){
   var docs = DOCS.filter(function(d){ return (d.topics||[]).indexOf(t)>=0; });
   var files = [];
   docs.forEach(function(d){ files = files.concat(zipDocs([d], t)); });
-  files.push({path: t+'/README.md', data:'# '+t+'\n\n共 '+docs.length+' 篇。\n\n生成时间：2026-10-08 05:49\n'});
+  files.push({path: t+'/README.md', data:'# '+t+'\n\n共 '+docs.length+' 篇。\n\n生成时间：2026-10-08 13:51\n'});
   save(zip(files), t+'.zip');
   toast('已打包分类「'+t+'」'+docs.length+' 篇');
 }
@@ -585,12 +605,12 @@ function dlAll(){
   GROUPS.forEach(function(g){
     g.docs.map(function(i){ return byId[i]; }).filter(Boolean).forEach(function(d){ fs = fs.concat(zipDocs([d], g.name)); });
   });
-  fs.push({path:'README.md', data:'# 知识库全量导出\n\n生成时间：2026-10-08 05:49\n共 137 篇。\n\n目录结构：分组名/技能名/SKILL.md（含 references、scripts、examples 等支持文件）。\n把某个「技能名」目录复制到你所用 agent 的 skills 目录即可。\n'});
+  fs.push({path:'README.md', data:'# 知识库全量导出\n\n生成时间：2026-10-08 13:51\n共 137 篇。\n\n目录结构：分组名/技能名/SKILL.md（含 references、scripts、examples 等支持文件）。\n把某个「技能名」目录复制到你所用 agent 的 skills 目录即可。\n'});
   save(zip(fs), '知识库-全量.zip');
   toast('已打包全量 '+DOCS.length+' 篇');
 }
 function dlMarkdown(){
-  var s = '# 知识库全量合集\n\n生成时间：2026-10-08 05:49\n\n---\n\n';
+  var s = '# 知识库全量合集\n\n生成时间：2026-10-08 13:51\n\n---\n\n';
   DOCS.forEach(function(d){
     s += '\n\n# ' + d.title + '\n\n> ' + (d.group||'') + ' · ' + (d.desc||'') + '\n\n';
     var b = bodyOf(d);
@@ -1219,11 +1239,11 @@ function loadInsp(){
   try{
     if(window.__KB__ && window.__KB__.insp){ seed = (window.__KB__.insp.items) ? window.__KB__.insp.items : []; }
   }catch(e){}
-  if(seed.length){ INSP = seed.filter(Boolean); renderInsp(); }
+  if(seed.length){ INSP = seed.filter(Boolean).map(inspFix); renderInsp(); }
   fetch('media/inspiration.json', {cache:'no-store'}).then(function(r){ return r.ok? r.json() : null; })
     .then(function(j){
       var items = j && j.items ? j.items : (Array.isArray(j) ? j : []);
-      if(items.length || !seed.length){ INSP = items.filter(Boolean); renderInsp(); }
+      if(items.length || !seed.length){ INSP = items.filter(Boolean).map(inspFix); renderInsp(); }
     }).catch(function(){});
 }
 function inspAllTags(){
@@ -1256,6 +1276,7 @@ function inspCard(it){
       '<span class="pf">'+esc(it.platform||'')+'</span>'+
       (it.dur? '<span class="du">'+Math.round(it.dur)+' 秒</span>' : '')+
       (fr.length? '<span class="nf">'+fr.length+' 帧</span>' : '')+
+      (it.video? '<span class="vfx">&#9654; 完整视频</span>' : '')+
     '</div><div class="bd"><h3>'+esc(it.title||it.id)+'</h3>'+
     '<div class="au">'+ (it.author? '@'+esc(it.author)+' · ' : '') + esc(it.saved||'') +'</div>'+
     (line? '<div class="fx">'+esc(line)+'</div>' : '')+
@@ -1330,8 +1351,16 @@ function inspOpen(id){
   stopAuto();
   var a = it.analyze||{}, fr = it.frames||[], L = document.getElementById('lb');
   var media = '';
-  if(fr.length){
-    media = '<img id="lbMain" src="'+esc(fr[0])+'" alt="">' +
+  if(it.video){
+    /* 完整视频优先：给的就是视频本身，不是截图 */
+    media = '<video id="lbVid" src="'+esc(it.video)+'" controls playsinline preload="metadata"></video>';
+    if(fr.length){
+      media += '<div class="vframes"><b>分析用抽帧（'+fr.length+' 张，仅供拆解参考，不是成片）</b>'+
+        '<div class="strip" id="lbStrip">'+ fr.map(function(f,k){
+          return '<img data-k="'+k+'" src="'+esc(f)+'" class="'+(k? '':'on')+'" alt="">'; }).join('') +'</div></div>';
+    }
+  } else if(fr.length){
+    media = '<img id="lbMain" src="'+esc(fr[0])+'" alt=""><div class="vframes"><b>本机有完整视频，未上传站点（体积超限）</b></div>' +
       (fr.length>1? '<div class="strip">'+ fr.map(function(f,k){
         return '<img data-k="'+k+'" src="'+esc(f)+'" class="'+(k? '':'on')+'" alt="">'; }).join('') +'</div>' : '');
   } else if(it.cover){ media = '<img src="'+esc(it.cover)+'" alt="">'; }
@@ -1364,9 +1393,12 @@ function inspOpen(id){
     it.transcript.map(function(s){ return '<b>'+esc(s.t)+'s</b> '+esc(s.s); }).join('<br>')+'</div></div>';
   if(it.vision) body += '<div class="isect"><h4><i>画面</i>逐帧笔记</h4><div class="ts">'+esc(it.vision)+'</div></div>';
   body += '<div class="isect"><h4><i>归档</i>本地路径</h4><div class="kv2">'+esc(it.archive||'')+'</div>'+
-    '<p style="font-size:12.5px;margin-top:6px">原始视频不上公开库（隐私/版权），要原件跟我说一声。</p></div>';
+    '<p style="font-size:12.5px;margin-top:6px">'+(it.video?
+      '上面播的就是完整原片，可直接下载保存；抽帧只是我拆解时看的截图。'
+      : '这条原片体积超了上限，只留本机；要看原件跟我说一声，我单独发给你。')+'</p></div>';
   body += '<div class="acts">'+
     (it.url? '<a class="btn" href="'+esc(it.url)+'" target="_blank" rel="noopener">&#8599; 看原视频</a>' : '')+
+    (it.video? '<a class="btn" href="'+esc(it.video)+'" download>&#8681; 下载完整视频</a>' : '')+
     (it.cover? '<a class="btn" href="'+esc(it.cover)+'" download>&#8681; 下载封面</a>' : '')+
     '<button class="btn" id="insMd">&#10064; 复制拆解</button>'+
     '<span style="flex:1"></span>'+
@@ -1384,7 +1416,8 @@ function inspOpen(id){
     } else { window.prompt('手动复制（Ctrl+C）', t); }
   };
   var main = document.getElementById('lbMain');
-  if(main){
+  var strip = L.querySelector('.strip');
+  if(main && strip){
     lbFrames = fr; lbFrameI = 0;
     Array.prototype.forEach.call(L.querySelectorAll('.strip img'), function(s){
       s.onclick = function(){
@@ -1393,6 +1426,12 @@ function inspOpen(id){
         Array.prototype.forEach.call(L.querySelectorAll('.strip img'), function(x){ x.classList.remove('on'); });
         s.classList.add('on');
       };
+    });
+  } else if(strip){
+    /* 视频模式下抽帧只作参考，点击在新窗口打开大图，不抢主画面 */
+    lbFrames = []; lbFrameI = 0;
+    Array.prototype.forEach.call(L.querySelectorAll('.strip img'), function(s){
+      s.onclick = function(){ window.open(s.getAttribute('src'), '_blank'); };
     });
   }
 }

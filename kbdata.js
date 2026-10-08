@@ -100,7 +100,8 @@ window.__KB__={"docs":[{"id":"h:apple/apple-notes","kind":"skill","name":"apple-
    ],
    "script": "",
    "note": "",
-   "archive": "C:\\Users\\111\\Desktop\\AI\\灵感库\\ins-20261008-f32bfb4a"
+   "archive": "C:\\Users\\111\\Desktop\\AI\\灵感库\\ins-20261008-f32bfb4a",
+   "video": "media/灵感/ins-20261008-f32bfb4a/video.mp4"
   }
  ],
  "updated": "2026-10-08 05:23"
