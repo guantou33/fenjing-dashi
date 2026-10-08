@@ -106,7 +106,7 @@ window.__KB__={"docs":[{"id":"h:apple/apple-notes","kind":"skill","name":"apple-
  ],
  "updated": "2026-10-08 05:23"
 };window.__KB__.news={
- "updated": "2026-10-08 19:28",
+ "updated": "2026-10-08 19:30",
  "today": "2026-10-08",
  "days": [
   {
@@ -225,6 +225,29 @@ window.__KB__={"docs":[{"id":"h:apple/apple-notes","kind":"skill","name":"apple-
    ]
   },
   {
+   "date": "2026-10-03",
+   "dow": "星期六",
+   "tip": "看山河辽阔，悟人生向上。短暂休憩后，怀揣热忱继续追逐藏在心底的目标。",
+   "img": "https://cdn.jsdmirror.com/gh/vikiboss/60s-static-host@main/static/images/2026-10-03.png",
+   "news": [
+    "国庆假期第 2 日全社会跨区域人员流动量预计超 3 亿人次，比 2025 年同期增长 2.1%",
+    "节中机票价 “跳水”：部分航线下探至五折，3 日、4 日继续下跌迎来节中低谷，5 日起返程价格走高",
+    "国庆假期首日高速公路充电量同比增长 60.4%，创历史节假日单日新高",
+    "新疆 G217 线独库公路 10 月 8 日 20 时起实施冬季封闭，禁止社会车辆通行",
+    "中国女足 0 比 1 不敌韩国，遗憾未能获得亚运奖牌；中国男排 2 比 3 惜败日本无缘决赛，将与巴基斯坦队争夺铜牌",
+    "上海生育医疗费用个人 “无自付” 新政落地，部分住院分娩孕产妇已获益",
+    "蔡某某 1 年内在 12315 平台累计举报 1520 次，官方通报：对其投诉终止调解处理",
+    "多家银行继续明确房贷贴息操作细节：已审未发贷款可办理",
+    "金价下跌掀起假期 “购金潮”，有金店客流暴涨：有门店两公斤金镯子半天卖空，店员：一周没空吃午饭了",
+    "港股恒指 10 月首个交易日失守 24000 点，创半年最大跌幅，物理 AI 概念股、科网股走弱",
+    "全球民商火箭位次出炉：SpaceX 第一、中科宇航第二，国内头部梯队成型",
+    "马克龙称七国集团将在 4 个月内释放最多 1 亿桶柴油和原油储备，国际油价应声大跌",
+    "韩国运行 78 年的检察厅正式关闭，取而代之的是负责提起公诉及维持公诉的 “公诉厅”",
+    "马斯克将重返特朗普政府，参与牵头 “子午线计划”，研究未来战争形态",
+    "美国被曝向中东派遣第三艘航母，增派近万名士兵，特朗普称 11 月或再炸伊朗"
+   ]
+  },
+  {
    "date": "2026-10-02",
    "dow": "星期五",
    "tip": "假期是蓄力而非松懈，好好休整身心，养足精力再奔赴下一场人生的征程。",
@@ -251,6 +274,18 @@ window.__KB__={"docs":[{"id":"h:apple/apple-notes","kind":"skill","name":"apple-
  "ai": [
   {
    "date": "2026-10-08",
+   "title": "ChatGPT踢到铁板了！能破解千禧数学难题，但论文复现率低至13.98%？",
+   "src": "量子位",
+   "url": "https://www.qbitai.com/2026/10/501995.html"
+  },
+  {
+   "date": "2026-10-08",
+   "title": "Claude新模型发布！跑分暴击GPT-6 Luna，价格比梁文谷还便宜，OpenAI只能送重置卡挽尊",
+   "src": "量子位",
+   "url": "https://www.qbitai.com/2026/10/501832.html"
+  },
+  {
+   "date": "2026-10-08",
    "title": "韩国“世界”号第五次发射载荷包括 5 款 LG 零部件与 Mobilint AI SoC",
    "src": "IT之家",
    "url": "https://www.ithome.com/1/010/587.htm"
@@ -263,9 +298,39 @@ window.__KB__={"docs":[{"id":"h:apple/apple-notes","kind":"skill","name":"apple-
   },
   {
    "date": "2026-10-08",
+   "title": "大模型原生智能体手机STEPX Neo将于10月13日正式发布",
+   "src": "量子位",
+   "url": "https://www.qbitai.com/2026/10/501915.html"
+  },
+  {
+   "date": "2026-10-08",
+   "title": "GPT-6今起免费用！拒答变少，话变多了",
+   "src": "量子位",
+   "url": "https://www.qbitai.com/2026/10/501834.html"
+  },
+  {
+   "date": "2026-10-08",
+   "title": "早报｜苹果一大波新品曝光，最快下周发布/全球纯汽油车份额首次跌破50%/2599 美元起，Surface Laptop Ultra发布",
+   "src": "爱范儿",
+   "url": "https://www.ifanr.com/1683053?utm_source=rss&utm_medium=rss&utm_campaign="
+  },
+  {
+   "date": "2026-10-08",
    "title": "派早报：微软发布 Windows 相关新品、Google AI 新闻两则等",
    "src": "少数派",
    "url": "https://sspai.com/post/115455"
+  },
+  {
+   "date": "2026-10-07",
+   "title": "《怪物史莱克》编剧也来了！这家AI影视公司，视频模型全球第二！",
+   "src": "量子位",
+   "url": "https://www.qbitai.com/2026/10/501803.html"
+  },
+  {
+   "date": "2026-10-03",
+   "title": "AI 视频榜全球第二，藏着一家新影视公司的野心",
+   "src": "爱范儿",
+   "url": "https://www.ifanr.com/1682888?utm_source=rss&utm_medium=rss&utm_campaign="
   },
   {
    "date": "2026-10-08",
@@ -290,36 +355,6 @@ window.__KB__={"docs":[{"id":"h:apple/apple-notes","kind":"skill","name":"apple-
    "title": "AMD 苏姿丰访韩，会见三星电子联席 CEO 全永铉",
    "src": "IT之家",
    "url": "https://www.ithome.com/1/010/578.htm"
-  },
-  {
-   "date": "2026-10-08",
-   "title": "香港恒生科技指数收跌 2.89%，创 2024 年 9 月以来新低",
-   "src": "IT之家",
-   "url": "https://www.ithome.com/1/010/574.htm"
-  },
-  {
-   "date": "2026-10-08",
-   "title": "消息称 AMD 多款显卡 10 月起正式上调指导价，最高涨价 700 元",
-   "src": "IT之家",
-   "url": "https://www.ithome.com/1/010/565.htm"
-  },
-  {
-   "date": "2026-10-08",
-   "title": "腾讯 WorkBuddy 上线独立文件浏览器，本地文件可直呼 AI 处理",
-   "src": "IT之家",
-   "url": "https://www.ithome.com/1/010/562.htm"
-  },
-  {
-   "date": "2026-10-08",
-   "title": "微星尊爵 Prestige N16 Flip AI+ 发布：RTX Spark 翻转本，16 日开售",
-   "src": "IT之家",
-   "url": "https://www.ithome.com/1/010/547.htm"
-  },
-  {
-   "date": "2026-10-08",
-   "title": "不满 Mistral 表现，德国搜索引擎 Ecosia 押注中国开源 AI 模型",
-   "src": "IT之家",
-   "url": "https://www.ithome.com/1/010/539.htm"
   }
  ]
 };
