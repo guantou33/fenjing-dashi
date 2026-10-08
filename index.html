@@ -476,6 +476,8 @@ mark.hit.on{box-shadow:0 0 0 2px var(--red)}
 .shots .th{width:78px}
 .shots .th img{width:68px;border-radius:6px;display:block}
 .shots .vi{color:var(--ink2);max-width:290px}
+.shots .ln{max-width:300px}
+.shots .ln .sub{display:block;color:var(--ink3);font-size:11.5px;margin-top:3px}
 
 /* ==================== 作品表 · 时间流 ==================== */
 .feed{max-width:780px;margin:0 auto}
@@ -701,7 +703,7 @@ mark.hit.on{box-shadow:0 0 0 2px var(--red)}
   </div>
 
   <div class="foot">
-    罐头的AI知识库 · 生成于 2026-10-08 20:06 · 共 137 篇<br>
+    罐头的AI知识库 · 生成于 2026-10-09 01:04 · 共 137 篇<br>
     Hermes 技能库 + 自建分镜大师包 + 青苹果与红苹果剧本项目
   </div>
 </div>
@@ -835,7 +837,7 @@ function dlDoc(d){
 function dlPack(p){
   var docs = p.docs.map(function(i){ return byId[i]; }).filter(Boolean);
   var fs = zipDocs(docs, p.folder);
-  fs.push({path: p.folder+'/README.md', data: '# '+p.name+'\n\n'+p.desc+'\n\n共 '+docs.length+' 个技能/文档。\n\n把 '+p.folder+' 下的每个子目录复制到你所用 agent 的 skills 目录即可（每个子目录内含 SKILL.md）。\n\n生成时间：2026-10-08 20:06\n'});
+  fs.push({path: p.folder+'/README.md', data: '# '+p.name+'\n\n'+p.desc+'\n\n共 '+docs.length+' 个技能/文档。\n\n把 '+p.folder+' 下的每个子目录复制到你所用 agent 的 skills 目录即可（每个子目录内含 SKILL.md）。\n\n生成时间：2026-10-09 01:04\n'});
   save(zip(fs), p.folder+'.zip');
   toast('已打包 '+docs.length+' 篇：'+p.folder+'.zip');
 }
@@ -843,7 +845,7 @@ function dlTopic(t){
   var docs = DOCS.filter(function(d){ return (d.topics||[]).indexOf(t)>=0; });
   var files = [];
   docs.forEach(function(d){ files = files.concat(zipDocs([d], t)); });
-  files.push({path: t+'/README.md', data:'# '+t+'\n\n共 '+docs.length+' 篇。\n\n生成时间：2026-10-08 20:06\n'});
+  files.push({path: t+'/README.md', data:'# '+t+'\n\n共 '+docs.length+' 篇。\n\n生成时间：2026-10-09 01:04\n'});
   save(zip(files), t+'.zip');
   toast('已打包分类「'+t+'」'+docs.length+' 篇');
 }
@@ -864,12 +866,12 @@ function dlAll(){
   GROUPS.forEach(function(g){
     g.docs.map(function(i){ return byId[i]; }).filter(Boolean).forEach(function(d){ fs = fs.concat(zipDocs([d], g.name)); });
   });
-  fs.push({path:'README.md', data:'# 知识库全量导出\n\n生成时间：2026-10-08 20:06\n共 137 篇。\n\n目录结构：分组名/技能名/SKILL.md（含 references、scripts、examples 等支持文件）。\n把某个「技能名」目录复制到你所用 agent 的 skills 目录即可。\n'});
+  fs.push({path:'README.md', data:'# 知识库全量导出\n\n生成时间：2026-10-09 01:04\n共 137 篇。\n\n目录结构：分组名/技能名/SKILL.md（含 references、scripts、examples 等支持文件）。\n把某个「技能名」目录复制到你所用 agent 的 skills 目录即可。\n'});
   save(zip(fs), '知识库-全量.zip');
   toast('已打包全量 '+DOCS.length+' 篇');
 }
 function dlMarkdown(){
-  var s = '# 知识库全量合集\n\n生成时间：2026-10-08 20:06\n\n---\n\n';
+  var s = '# 知识库全量合集\n\n生成时间：2026-10-09 01:04\n\n---\n\n';
   DOCS.forEach(function(d){
     s += '\n\n# ' + d.title + '\n\n> ' + (d.group||'') + ' · ' + (d.desc||'') + '\n\n';
     var b = bodyOf(d);
@@ -1762,6 +1764,12 @@ function mmss(t){
   return (m<10? '0':'') + m + ':' + (q<10? '0':'') + q;
 }
 function shotRows(it){
+  /* 真拉片表：按镜头切分，行=镜，画面=该镜真帧，台词=该镜时间窗内的台词，描述=该镜在干嘛 */
+  if((it.shotlist||[]).length){
+    return it.shotlist.map(function(r){
+      return { t:+r.t||0, e:+r.e||0, s:r.line||'', v:r.desc||'', img:r.img||'', sub:r.sub||'', shot:true };
+    });
+  }
   var fr = it.frames || [], tr = it.transcript || [], dur = +it.dur || 0;
   return tr.map(function(s){
     var t = +s.t || 0;
@@ -1817,15 +1825,19 @@ function inspOpen(id){
   var shots = shotRows(it);
   if(shots.length){
     var hasVi = shots.filter(function(r){ return r.v; }).length > 0;
-    body += '<div class="isect"><h4><i>逐镜</i>时间轴拉片表 · 点一行跳到视频那一秒</h4>'+
+    var isShot = !!(shots[0] && shots[0].shot);
+    body += '<div class="isect"><h4><i>逐镜</i>'+(isShot? '时间轴拉片表 · 按真实镜头切分，点一行跳到那一秒' : '时间轴拉片表 · 点一行跳到视频那一秒')+'</h4>'+
       '<div class="shots"><table><thead><tr><th>时间</th><th>画面</th><th>台词</th>'+(hasVi? '<th>这一镜在干嘛</th>':'')+'</tr></thead><tbody>'+
       shots.map(function(r){
-        return '<tr data-t="'+r.t+'"><td class="tc">'+mmss(r.t)+'</td>'+
+        var tc = (isShot && r.e) ? mmss(r.t)+'–'+mmss(r.e) : mmss(r.t);
+        return '<tr data-t="'+r.t+'"><td class="tc">'+tc+'</td>'+
           '<td class="th">'+ (r.img? '<img loading="lazy" src="'+esc(r.img)+'" alt="">' : '') +'</td>'+
-          '<td class="ln">'+esc(r.s)+'</td>'+
-          (hasVi? '<td class="vi">'+esc(r.v)+'</td>' : '') +'</tr>';
+          '<td class="ln">'+ (r.s||r.sub? esc(r.s||'')+(r.sub && r.sub.indexOf(r.s.slice(0,6))<0? '<span class="sub">字幕：'+esc(r.sub)+'</span>' : '') : '（无台词）') +'</td>'+
+          (hasVi? '<td class="vi">'+esc(r.v||'')+'</td>' : '') +'</tr>';
       }).join('') +'</tbody></table></div>'+
-      '<p style="font-size:11.5px;color:var(--ink3);margin-top:7px">缩略图按时间比例取最近的一张，只为定位用；要看完整画面点上面的播放器。</p></div>';
+      '<p style="font-size:11.5px;color:var(--ink3);margin-top:7px">'+
+      (isShot? '每行是一个镜头：时间是该镜头的起止，缩略图取自这个镜头内的真实画面，描述是本地视觉模型逐镜看的。要看完整画面点上面的播放器。'
+             : '缩略图按时间比例取最近的一张，只为定位用；要看完整画面点上面的播放器。')+'</p></div>';
   } else if((it.transcript||[]).length){
     body += '<div class="isect"><h4><i>台词</i>带时间轴</h4><div class="ts">'+
       it.transcript.map(function(s){ return '<b>'+esc(s.t)+'s</b> '+esc(s.s); }).join('<br>')+'</div></div>';
