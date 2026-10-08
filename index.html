@@ -20,7 +20,7 @@ a{color:var(--red);text-decoration:none}
 .wrap{max-width:1000px;margin:0 auto;padding:0 16px 64px}
 
 /* ---------- 顶部 ---------- */
-header{position:sticky;top:0;z-index:30;background:var(--hd);backdrop-filter:blur(10px);
+header{position:relative;z-index:30;background:var(--hd);backdrop-filter:blur(10px);
   border-bottom:1px solid var(--line)}
 .hd{max-width:1000px;margin:0 auto;padding:14px 14px 10px}
 .hdtop{text-align:center;padding:2px 0 0}
@@ -250,17 +250,6 @@ mark{background:#FFE2E6;color:var(--red-d);border-radius:3px;padding:0 2px}
 .hact .btn{padding:6px 11px;font-size:12.5px}
 @media(max-width:700px){.hact{justify-content:flex-start}}
 @media(max-width:420px){.hact .btn{padding:6px 9px;font-size:12px}}
-/* 往下滚时顶栏自动收窄，手机上不占掉四分之一屏（桌面保持完整） */
-@media(max-width:760px){
-  .hdtop,.brand .logo,.brand .btxt,.swrap,.hact{transition:all .22s ease}
-  body.scrolled .brand .logo{font-size:17px;padding:2px 9px 3px;box-shadow:none}
-  body.scrolled .brand .btxt{font-size:18px;letter-spacing:1px}
-  body.scrolled .bstat{display:none}
-  body.scrolled .hdtop:after{display:none}
-  body.scrolled .swrap{display:none}
-  body.scrolled .hd{padding:8px 14px 6px}
-  body.scrolled .hact{margin-top:6px;padding-bottom:2px}
-}
 /* ---------- 搜索即时提示 ---------- */
 .swrap{position:relative}
 .qsug{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--card);border:1.5px solid var(--red-line);
@@ -662,7 +651,7 @@ mark.hit.on{box-shadow:0 0 0 2px var(--red)}
   </div>
 
   <div class="foot">
-    罐头的AI知识库 · 生成于 2026-10-08 17:28 · 共 137 篇<br>
+    罐头的AI知识库 · 生成于 2026-10-08 18:41 · 共 137 篇<br>
     Hermes 技能库 + 自建分镜大师包 + 青苹果与红苹果剧本项目
   </div>
 </div>
@@ -796,7 +785,7 @@ function dlDoc(d){
 function dlPack(p){
   var docs = p.docs.map(function(i){ return byId[i]; }).filter(Boolean);
   var fs = zipDocs(docs, p.folder);
-  fs.push({path: p.folder+'/README.md', data: '# '+p.name+'\n\n'+p.desc+'\n\n共 '+docs.length+' 个技能/文档。\n\n把 '+p.folder+' 下的每个子目录复制到你所用 agent 的 skills 目录即可（每个子目录内含 SKILL.md）。\n\n生成时间：2026-10-08 17:28\n'});
+  fs.push({path: p.folder+'/README.md', data: '# '+p.name+'\n\n'+p.desc+'\n\n共 '+docs.length+' 个技能/文档。\n\n把 '+p.folder+' 下的每个子目录复制到你所用 agent 的 skills 目录即可（每个子目录内含 SKILL.md）。\n\n生成时间：2026-10-08 18:41\n'});
   save(zip(fs), p.folder+'.zip');
   toast('已打包 '+docs.length+' 篇：'+p.folder+'.zip');
 }
@@ -804,7 +793,7 @@ function dlTopic(t){
   var docs = DOCS.filter(function(d){ return (d.topics||[]).indexOf(t)>=0; });
   var files = [];
   docs.forEach(function(d){ files = files.concat(zipDocs([d], t)); });
-  files.push({path: t+'/README.md', data:'# '+t+'\n\n共 '+docs.length+' 篇。\n\n生成时间：2026-10-08 17:28\n'});
+  files.push({path: t+'/README.md', data:'# '+t+'\n\n共 '+docs.length+' 篇。\n\n生成时间：2026-10-08 18:41\n'});
   save(zip(files), t+'.zip');
   toast('已打包分类「'+t+'」'+docs.length+' 篇');
 }
@@ -825,12 +814,12 @@ function dlAll(){
   GROUPS.forEach(function(g){
     g.docs.map(function(i){ return byId[i]; }).filter(Boolean).forEach(function(d){ fs = fs.concat(zipDocs([d], g.name)); });
   });
-  fs.push({path:'README.md', data:'# 知识库全量导出\n\n生成时间：2026-10-08 17:28\n共 137 篇。\n\n目录结构：分组名/技能名/SKILL.md（含 references、scripts、examples 等支持文件）。\n把某个「技能名」目录复制到你所用 agent 的 skills 目录即可。\n'});
+  fs.push({path:'README.md', data:'# 知识库全量导出\n\n生成时间：2026-10-08 18:41\n共 137 篇。\n\n目录结构：分组名/技能名/SKILL.md（含 references、scripts、examples 等支持文件）。\n把某个「技能名」目录复制到你所用 agent 的 skills 目录即可。\n'});
   save(zip(fs), '知识库-全量.zip');
   toast('已打包全量 '+DOCS.length+' 篇');
 }
 function dlMarkdown(){
-  var s = '# 知识库全量合集\n\n生成时间：2026-10-08 17:28\n\n---\n\n';
+  var s = '# 知识库全量合集\n\n生成时间：2026-10-08 18:41\n\n---\n\n';
   DOCS.forEach(function(d){
     s += '\n\n# ' + d.title + '\n\n> ' + (d.group||'') + ' · ' + (d.desc||'') + '\n\n';
     var b = bodyOf(d);
@@ -2385,16 +2374,9 @@ if(_dlk) _dlk.onclick = function(){
 /* ---------------- 回到顶部 ---------------- */
 var _topBtn = document.getElementById('topBtn');
 if(_topBtn) _topBtn.onclick = function(){ window.scrollTo({ top:0, behavior:'smooth' }); };
-var _hdCompact = false;
-function _hdApply(){
-  var c = window.scrollY > 140;
-  if(c !== _hdCompact){ _hdCompact = c; document.body.classList.toggle('scrolled', c); }
-}
 window.addEventListener('scroll', function(){
   if(_topBtn) _topBtn.classList.toggle('on', window.scrollY > 600);
-  _hdApply();
 }, { passive:true });
-_hdApply();
 
 
 /* ---------------- 新增条目：上次访问以来有更新的 ---------------- */
