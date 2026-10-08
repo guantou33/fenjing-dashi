@@ -103,7 +103,7 @@ code{background:var(--soft);border:1px solid var(--line);border-radius:5px;paddi
 
   <div class="card">
     <h2>2 · 挑文件 <em>图片 / 视频都行，可多选</em></h2>
-    <p class="hint">图片会自动压成网页用的体积并生成缩略图；视频默认抽第 0.6 秒那帧当封面，想换封面就点列表里的「选封面」——跟抖音一样，点胶片条上的任意一帧、拖进度条精挑，或者从相册里挑一张图。上传后首页「作品表 · 图库」里就能看到，点开是大图/播放器。</p>
+    <p class="hint">图片会自动压成网页用的体积并生成缩略图；视频会抽第一帧当封面。上传后首页「作品表 · 图库」里就能看到，点开是大图/播放器。</p>
     <div class="drop" id="drop"><b>拖文件到这里</b>或点一下选择文件（也可直接粘贴截图）</div>
     <input type="file" id="file" multiple accept="image/*,video/*" style="display:none">
     <div class="row" style="margin-top:12px">
@@ -124,12 +124,6 @@ code{background:var(--soft);border:1px solid var(--line);border-radius:5px;paddi
     <div class="row" style="margin-top:12px">
       <div><label>标签（逗号分隔）</label><input type="text" id="tags" placeholder="例如：参考,九宫格"></div>
     </div>
-    <div id="prog" style="display:none;margin-top:12px">
-      <div style="height:8px;background:#EFEFF3;border-radius:99px;overflow:hidden">
-        <i id="progBar" style="display:block;height:100%;width:0%;background:linear-gradient(90deg,#C8102E,#E8637A);transition:width .25s"></i>
-      </div>
-      <div class="muted" id="progTxt" style="font-size:12.5px;color:#8A8A93;margin-top:6px"></div>
-    </div>
     <div id="pickWrap" style="display:none;margin-top:12px">
       <table><thead><tr><th style="width:76px">预览</th><th>标题（可改）</th><th style="width:82px">大小</th><th style="width:52px"></th></tr></thead>
       <tbody id="pickBody"></tbody></table>
@@ -148,31 +142,6 @@ code{background:var(--soft);border:1px solid var(--line);border-radius:5px;paddi
     <div class="wlist" id="wlist"></div>
   </div>
 
-</div>
-
-<!-- === kb-cover-v3 === 抖音式封面选择 -->
-<div id="cvMask" style="display:none;position:fixed;inset:0;background:rgba(20,20,24,.72);z-index:9999;padding:14px;overflow:auto">
-  <div style="max-width:620px;margin:8px auto;background:#fff;border-radius:16px;padding:14px 14px 16px">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-      <b id="cvTitle" style="font-size:15px">选封面</b>
-      <button class="btn gray" id="cvClose" style="padding:6px 12px">关闭</button>
-    </div>
-    <p class="hint" style="margin:8px 0 10px">跟抖音一样：点下面任意一帧当封面，或拖动进度条挑更准的那一下；也可以直接从相册挑一张图。</p>
-    <div style="background:#111;border-radius:12px;overflow:hidden">
-      <video id="cvVid" muted playsinline webkit-playsinline preload="auto" style="width:100%;max-height:46vh;display:block;background:#111"></video>
-    </div>
-    <div id="cvStrip" style="display:flex;gap:6px;overflow-x:auto;margin:10px 0 6px;min-height:56px"></div>
-    <input type="range" id="cvRange" min="0" max="1000" value="0" style="width:100%;margin:6px 0 2px">
-    <div style="display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:#8A8A93">
-      <span id="cvTime">0.0 秒</span><span id="cvNote"></span>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-      <button class="btn" id="cvUse">用这一帧当封面</button>
-      <button class="btn ghost" id="cvPick">从相册挑一张</button>
-      <button class="btn gray" id="cvAuto">恢复自动封面</button>
-    </div>
-    <input type="file" id="cvFile" accept="image/*" style="display:none">
-  </div>
 </div>
 
 <script>
@@ -368,22 +337,13 @@ function renderPicks(){
     var img = document.createElement('img');
     if(p.kind === 'image'){ img.src = URL.createObjectURL(p.file); }
     td1.appendChild(img);
-    if(p.kind === 'video'){
-      var cbtn = document.createElement('button');
-      cbtn.className = 'btn gray'; cbtn.textContent = '选封面';
-      cbtn.style.cssText = 'font-size:11px;padding:3px 7px;margin-top:5px;width:100%';
-      cbtn.onclick = function(){ openCover(i); };
-      td1.appendChild(cbtn);
-    }
     var td2 = document.createElement('td');
     var inp = document.createElement('input');
     inp.type = 'text'; inp.value = p.title;
     inp.oninput = function(){ p.title = inp.value; };
     td2.appendChild(inp);
     var td3 = document.createElement('td');
-    td3.innerHTML = '<span class="pill">' + human(p.file.size) + '</span>'
-      + (p.kind === 'video' ? '<div style="font-size:11px;color:#8A8A93;margin-top:4px">'
-          + (p.thumbFailed ? '无封面' : (p.coverSrc ? '封面：' + p.coverSrc : '封面：自动')) + '</div>' : '');
+    td3.innerHTML = '<span class="pill">' + human(p.file.size) + '</span>';
     var td4 = document.createElement('td');
     var del = document.createElement('button');
     del.className = 'btn gray'; del.textContent = '×';
@@ -507,88 +467,6 @@ function blob2b64(b){
   });
 }
 
-/* === kb-cover-v3 === */
-function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
-
-/* 进度条：看得见「正在传第几个文件、多少 MB、百分之几」 */
-function setProgress(txt, pct){
-  var bar = document.getElementById('progBar'), box = document.getElementById('prog'),
-      t = document.getElementById('progTxt');
-  if(!box) return;
-  box.style.display = 'block';
-  if(t) t.textContent = txt || '';
-  if(bar && typeof pct === 'number') bar.style.width = Math.max(2, Math.min(100, pct)) + '%';
-}
-function hideProgress(){
-  var box = document.getElementById('prog');
-  if(box) box.style.display = 'none';
-  var bar = document.getElementById('progBar');
-  if(bar) bar.style.width = '0%';
-}
-
-/* 带上传进度的 POST（只有传文件用它，普通小请求还是走 api()） */
-function apiUpload(path, bodyStr, onProgress){
-  var url = 'https://api.github.com/repos/' + cfg.repo + path;
-  return new Promise(function(res, rej){
-    var x = new XMLHttpRequest();
-    x.open('POST', url, true);
-    x.setRequestHeader('Accept', 'application/vnd.github+json');
-    x.setRequestHeader('X-GitHub-Api-Version', '2022-11-28');
-    x.setRequestHeader('Content-Type', 'application/json');
-    if(cfg.token) x.setRequestHeader('Authorization', 'Bearer ' + cfg.token);
-    x.timeout = 20 * 60 * 1000;
-    x.upload.onprogress = function(e){
-      if(onProgress && e.lengthComputable) onProgress(e.loaded, e.total);
-    };
-    x.onload = function(){
-      if(x.status >= 200 && x.status < 300){
-        var out = null;
-        try{ out = x.responseText ? JSON.parse(x.responseText) : null; }catch(e){ out = null; }
-        res(out);
-      }else{
-        rej(new Error(x.status + ' ' + String(x.responseText || '').slice(0, 200)));
-      }
-    };
-    x.onerror = function(){ rej(new Error('网络中断（手机信号断了一下）')); };
-    x.ontimeout = function(){ rej(new Error('等太久没反应（超过 20 分钟）')); };
-    x.onabort = function(){ rej(new Error('被中断')); };
-    x.send(bodyStr);
-  });
-}
-
-/* 传一个文件（blob）到仓库：带进度 + 断线自动重试 */
-function pushBlob(f, label){
-  var tries = 0;
-  function attempt(){
-    tries++;
-    var body = JSON.stringify({content: f.b64, encoding: 'base64'});
-    var t0 = Date.now(), last = 0;
-    var name = String(f.path).split('/').pop();
-    return apiUpload('/git/blobs', body, function(loaded, total){
-      var now = Date.now();
-      if(now - last < 900) return;
-      last = now;
-      var pct = total ? Math.round(loaded / total * 100) : 0;
-      var speed = loaded / Math.max(1, (now - t0) / 1000);
-      var left = speed > 0 ? Math.round((total - loaded) / speed) : 0;
-      setProgress((label || '') + ' ' + name + '：' + human(loaded) + ' / ' + human(total)
-                  + '（' + pct + '%' + (left > 3 ? '，约剩 ' + left + ' 秒' : '') + '）', pct);
-    }).then(function(bl){
-      if(!bl || !bl.sha) throw new Error('服务器没返回文件标识');
-      return bl;
-    }).catch(function(e){
-      var msg = (e && e.message) ? e.message : String(e);
-      if(tries < 3){
-        setProgress('这一下断了，自动重试第 ' + (tries + 1) + ' 次…（' + name + '）', 0);
-        log('⚠ 传 ' + name + ' 断了（' + msg + '），' + 3 + ' 秒后自动重试（第 ' + (tries + 1) + ' 次）', 'w');
-        return sleep(3000 * tries).then(attempt);
-      }
-      throw new Error('传 ' + name + ' 失败：' + msg);
-    });
-  }
-  return attempt();
-}
-
 /* ---------- 一次提交写多个文件 ---------- */
 function commitFiles(files, message){
   var refSha, baseTree;
@@ -604,9 +482,7 @@ function commitFiles(files, message){
         if(i >= fs.length) return Promise.resolve(tree);
         var f = fs[i++];
         if(f.remove){ tree.push({path:f.path, mode:'100644', type:'blob', sha:null}); return next(); }
-        var seq = i, total = fs.length;
-        setProgress('正在传第 ' + seq + ' / ' + total + ' 个文件…', 0);
-        return pushBlob(f, '正在传第 ' + seq + '/' + total + ' 个：')
+        return api('/git/blobs', {method:'POST', body: JSON.stringify({content:f.b64, encoding:'base64'})})
           .then(function(bl){ tree.push({path:f.path, mode:'100644', type:'blob', sha:bl.sha}); return next(); });
       }
       return next();
@@ -644,159 +520,6 @@ function fetchWorksRaw(){
     .catch(function(){ return {works:[]}; });
 }
 
-
-/* === kb-cover-v3 === 封面选择逻辑（点帧 / 拖进度条 / 相册图） */
-var cvIdx = -1, cvUrl = null, cvBusy = false;
-
-function openCover(i){
-  var p = picks[i];
-  if(!p || p.kind !== 'video') return;
-  cvIdx = i;
-  var mask = document.getElementById('cvMask');
-  mask.style.display = 'block';
-  document.getElementById('cvTitle').textContent = '选封面 · ' + p.title;
-  document.getElementById('cvNote').textContent = '';
-  var v = document.getElementById('cvVid');
-  if(cvUrl) URL.revokeObjectURL(cvUrl);
-  cvUrl = URL.createObjectURL(p.file);
-  v.src = cvUrl;
-  v.currentTime = 0;
-  v.onloadedmetadata = function(){
-    document.getElementById('cvRange').value = 0;
-    cvBuildStrip();
-  };
-  v.onseeked = function(){
-    var d = v.duration || 0;
-    document.getElementById('cvTime').textContent = (v.currentTime || 0).toFixed(1) + ' 秒'
-      + (d ? ' / ' + d.toFixed(1) + ' 秒' : '');
-  };
-  v.onerror = function(){ document.getElementById('cvNote').textContent = '这台浏览器解不开这个视频，只能从相册挑图当封面'; };
-  document.getElementById('cvRange').value = 0;
-}
-
-function closeCover(){
-  document.getElementById('cvMask').style.display = 'none';
-  var v = document.getElementById('cvVid');
-  try{ v.pause(); }catch(e){}
-  v.removeAttribute('src'); try{ v.load(); }catch(e){}
-  cvIdx = -1;
-}
-
-/* 8 张胶片条：逐帧定位再抓小图 */
-function cvBuildStrip(){
-  var v = document.getElementById('cvVid'), strip = document.getElementById('cvStrip');
-  strip.innerHTML = '<span style="font-size:12.5px;color:#8A8A93;align-self:center">正在抽帧…</span>';
-  var dur = v.duration || 0;
-  if(!dur){ strip.innerHTML = '<span style="font-size:12.5px;color:#8A8A93;align-self:center">这台浏览器读不到时长，直接拖进度条选吧</span>'; return; }
-  var n = 8, i = 0, done = false;
-  var timer = setTimeout(function(){
-    if(done) return; done = true;
-    strip.innerHTML = '<span style="font-size:12.5px;color:#8A8A93;align-self:center">抽帧太慢，直接拖进度条选吧</span>';
-  }, 20000);
-  function grab(t){
-    var c = document.createElement('canvas');
-    var vw = v.videoWidth || 640, vh = v.videoHeight || 360;
-    var s = Math.min(1, 150 / vw);
-    c.width = Math.max(2, Math.round(vw * s)); c.height = Math.max(2, Math.round(vh * s));
-    try{ c.getContext('2d').drawImage(v, 0, 0, c.width, c.height); }catch(e){ return null; }
-    return c.toDataURL('image/webp', 0.6);
-  }
-  function step(){
-    if(i >= n){
-      done = true; clearTimeout(timer);
-      if(!strip.querySelector('img')){
-        strip.innerHTML = '<span style="font-size:12.5px;color:#8A8A93;align-self:center">抽不到帧（视频格式特殊），拖进度条或用相册图吧</span>';
-      }
-      return;
-    }
-    var t = Math.max(0.05, Math.min(dur * (i + 0.5) / n, dur - 0.05));
-    var once = false;
-    function after(){
-      if(once) return; once = true;
-      v.removeEventListener('seeked', after);
-      var url = grab(t);
-      if(url){
-        var im = document.createElement('img');
-        im.src = url; im.title = '第 ' + (i + 1) + ' 帧 · ' + t.toFixed(1) + ' 秒';
-        im.style.cssText = 'width:76px;height:44px;object-fit:cover;border-radius:7px;flex:0 0 auto;cursor:pointer;border:2px solid transparent';
-        im.onclick = function(){
-          Array.prototype.forEach.call(strip.querySelectorAll('img'), function(x){ x.style.borderColor = 'transparent'; });
-          im.style.borderColor = '#C8102E';
-          try{ v.currentTime = t; }catch(e){}
-          document.getElementById('cvRange').value = Math.round(t / dur * 1000);
-        };
-        strip.appendChild(im);
-      }
-      i++;
-      setTimeout(step, 40);
-    }
-    v.addEventListener('seeked', after);
-    setTimeout(function(){ after(); }, 2500);
-    try{ v.currentTime = t; }catch(e){ i++; setTimeout(step, 40); }
-  }
-  step();
-}
-
-function cvApply(blob, label){
-  var p = picks[cvIdx];
-  if(!p){ closeCover(); return; }
-  if(!blob){ log('封面没做成，保持原来的', 'w'); closeCover(); return; }
-  p.thumbBlob = blob;
-  p.coverSrc = label;
-  p.thumbFailed = false;
-  p.preview = URL.createObjectURL(blob);
-  log('封面换成「' + label + '」：' + p.title + '（' + human(blob.size) + '）', 'k');
-  closeCover();
-  renderPicks();
-}
-
-/* 抓当前这一帧（长边 900）当封面 */
-function cvUseFrame(){
-  var v = document.getElementById('cvVid');
-  if(!v.videoWidth){ log('还没读出画面，稍等一下再点', 'w'); return; }
-  var vw = v.videoWidth, vh = v.videoHeight;
-  var s = Math.min(1, 900 / vw);
-  var c = document.createElement('canvas');
-  c.width = Math.round(vw * s); c.height = Math.round(vh * s);
-  try{ c.getContext('2d').drawImage(v, 0, 0, c.width, c.height); }
-  catch(e){ log('这一帧抓不到（换一帧再试）', 'e'); return; }
-  canvasToBlob(c, 0.86).then(function(b){
-    cvApply(b, '自选帧 ' + (v.currentTime || 0).toFixed(1) + 's');
-  });
-}
-
-document.getElementById('cvClose').onclick = closeCover;
-document.getElementById('cvMask').onclick = function(e){ if(e.target === this) closeCover(); };
-document.getElementById('cvUse').onclick = cvUseFrame;
-document.getElementById('cvAuto').onclick = function(){
-  var p = picks[cvIdx];
-  if(!p){ closeCover(); return; }
-  p.thumbBlob = null; p.coverSrc = null; p.thumbFailed = false; p.ready = false; p.preview = null;
-  log('改回自动封面（第 0.6 秒那帧）：' + p.title);
-  closeCover(); renderPicks();
-};
-document.getElementById('cvPick').onclick = function(){ document.getElementById('cvFile').click(); };
-document.getElementById('cvFile').onchange = function(){
-  var f = this.files && this.files[0];
-  this.value = '';
-  if(!f) return;
-  var p = picks[cvIdx];
-  if(!p){ closeCover(); return; }
-  var im = new Image();
-  im.onload = function(){
-    var th = shrink(im, 900);
-    canvasToBlob(th.c, 0.86).then(function(b){ cvApply(b, '相册图'); });
-  };
-  im.onerror = function(){ log('这张图读不出来，换一张', 'e'); };
-  im.src = URL.createObjectURL(f);
-};
-document.getElementById('cvRange').oninput = function(){
-  var v = document.getElementById('cvVid');
-  if(!v.duration) return;
-  try{ v.currentTime = (this.value / 1000) * v.duration; }catch(e){}
-  document.getElementById('cvTime').textContent = (v.currentTime || 0).toFixed(1) + ' 秒 / ' + v.duration.toFixed(1) + ' 秒';
-};
-
 /* ---------- 上传 ---------- */
 document.getElementById('go').onclick = function(){
   if(!cfg.token || !cfg.repo){ log('先去第 1 步连上仓库', 'e'); return; }
@@ -817,7 +540,6 @@ document.getElementById('go').onclick = function(){
     .filter(function(s){ return s; });
   var btn = this; btn.disabled = true;
   log('=== 开始上传 ' + picks.length + ' 个文件 ===', 'k');
-  setProgress('正在准备…', 0);
 
   /* 先自检：没处理完 / 单个文件超过 GitHub 上限，就地拦住，绝不写空数据上去 */
   var notReady = picks.filter(function(p){ return !p.ready; });
@@ -913,7 +635,6 @@ document.getElementById('go').onclick = function(){
     })
     .then(function(){
       if(hb) clearInterval(hb);
-      setProgress('全部传完，正在让站点更新…', 100);
       var secs = Math.round((Date.now() - t0) / 1000);
       histAdd(manifestAdd.map(function(e){
         var p = null;
@@ -931,12 +652,11 @@ document.getElementById('go').onclick = function(){
     })
     .catch(function(e){
       if(hb) clearInterval(hb);
-      setProgress('这次没成：' + (e && e.message ? e.message : e), 0);
       log('❌ 失败：' + (e && e.message ? e.message : e), 'e');
       log('手机上多半是网络断了一下。已经传进仓库的部分不会白传：'
           + '再点一次「开始上传」，同样的视频会自动跳过、只补没写完的部分。', 'w');
     })
-    .then(function(){ btn.disabled = false; setTimeout(hideProgress, 4000); });
+    .then(function(){ btn.disabled = false; });
 };
 document.getElementById('clear').onclick = function(){ picks = []; renderPicks(); };
 
