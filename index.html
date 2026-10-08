@@ -243,6 +243,48 @@ mark{background:#FFE2E6;color:var(--red-d);border-radius:3px;padding:0 2px}
 .lb .strip img{width:132px;border-radius:7px;cursor:pointer;opacity:.72;flex:none;margin:0}
 .lb .strip img.on,.lb .strip img:hover{opacity:1;outline:2px solid var(--red)}
 .lb .acts{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 20px;align-items:center}
+/* ---------- 三个主入口：单独占一行，居中，跟上面搜索、下面小按钮都区分开 ---------- */
+.hrow{display:flex;gap:9px;justify-content:center;align-items:stretch;margin:14px auto 0;
+  max-width:620px;padding:9px;border-radius:16px;border:1px solid var(--red-line);
+  background:linear-gradient(180deg,var(--red-bg),transparent 92%)}
+.hrow .hbtn{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1px;padding:9px 6px;border-radius:12px;border:1.5px solid var(--red-line);background:var(--card);
+  color:var(--red-d);font:700 15px/1.25 inherit;letter-spacing:.5px;cursor:pointer;
+  box-shadow:0 2px 8px rgba(200,16,46,.07);transition:.16s}
+.hrow .hbtn u{text-decoration:none;font:400 10.5px/1.3 inherit;letter-spacing:.2px;color:var(--ink3);white-space:nowrap}
+.hrow .hbtn:hover,.hrow .hbtn.on{border-color:var(--red);color:#fff;
+  background:linear-gradient(135deg,var(--red),var(--red-l));box-shadow:0 5px 16px rgba(200,16,46,.22)}
+.hrow .hbtn:hover u,.hrow .hbtn.on u{color:rgba(255,255,255,.88)}
+.hrow .hbtn:active{transform:scale(.985)}
+@media(max-width:430px){.hrow{gap:6px;padding:7px;margin-top:11px;border-radius:13px}
+  .hrow .hbtn{padding:8px 3px;font-size:13.5px;letter-spacing:0}
+  .hrow .hbtn u{font-size:9.5px;transform:scale(.96)}}
+/* ---------- 今日资讯 ---------- */
+.newshead{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin:0 0 10px}
+.newshead b{font-size:15px}
+.newshead span{font-size:12px;color:var(--ink3)}
+.newsday{border:1px solid var(--line);border-radius:12px;background:var(--card);margin:0 0 9px;overflow:hidden}
+.newsday>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:9px;padding:11px 13px;
+  font-size:14px;font-weight:700;color:var(--ink);background:var(--soft)}
+.newsday>summary::-webkit-details-marker{display:none}
+.newsday>summary:before{content:"\25B8";color:var(--red);font-size:12px;transition:.16s;display:inline-block}
+.newsday[open]>summary:before{transform:rotate(90deg)}
+.newsday>summary .dt{color:var(--red-d);font-variant-numeric:tabular-nums}
+.newsday>summary .dw{font-size:11.5px;color:var(--ink3);font-weight:400}
+.newsday>summary .n{margin-left:auto;font-size:11.5px;color:var(--ink3);font-weight:400}
+.newsday ol{margin:0;padding:10px 16px 12px 32px}
+.newsday li{font-size:13.5px;line-height:1.72;color:var(--ink);margin:0 0 6px}
+.newsday li:last-child{margin-bottom:0}
+.newsday .tip{margin:0;padding:9px 14px 12px;font-size:12.5px;color:var(--ink2);
+  background:linear-gradient(180deg,var(--red-bg),transparent)}
+.newscov{margin:0 0 10px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.newscov img{display:block;width:100%;height:auto}
+.newsai{display:grid;gap:7px}
+.newsai a{display:flex;gap:9px;align-items:baseline;padding:9px 12px;border:1px solid var(--line);
+  border-radius:10px;background:var(--card);text-decoration:none;color:var(--ink);font-size:13.5px;line-height:1.5}
+.newsai a:hover{border-color:var(--red-line);background:var(--red-bg)}
+.newsai .d{font-size:11px;color:var(--ink3);flex:none;font-variant-numeric:tabular-nums}
+.newsai .s{font-size:11px;color:var(--red-d);flex:none;border:1px solid var(--red-line);border-radius:5px;padding:0 4px}
 .hact{display:flex;gap:7px;align-items:center;justify-content:center;margin-top:12px;
   overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0 4px}
 .hact::-webkit-scrollbar{display:none}
@@ -498,13 +540,15 @@ mark.hit.on{box-shadow:0 0 0 2px var(--red)}
       <div class="brand"><span class="logo">罐头</span><span class="btxt">的<i>AI</i>知识库</span></div>
       <div class="bstat" id="stat"></div>
     </div>
+    <div class="hrow">
+      <button class="hbtn" id="jumpToc">目录<u>全部条目</u></button>
+      <button class="hbtn" id="jumpGal">作品表<u>图库 · 时间流</u></button>
+      <button class="hbtn" id="jumpInsp">灵感库<u>爆点拆解</u></button>
+    </div>
     <div class="hact">
         <button class="btn sm ghost" id="cmdBtn" title="快捷搜索 / 跳转（Ctrl+K）">&#9906; 快捷</button>
-        <button class="btn sm ghost" id="rndBtn" title="随机翻一条">&#127922; 随便看看</button>
-        <button class="btn sm ghost" id="jumpToc">目录</button>
-        <button class="btn sm ghost" id="jumpGal">作品表</button>
-        <button class="btn sm ghost" id="jumpInsp">灵感库</button>
-        <a class="btn sm" href="upload.html">上传</a>
+        <button class="btn sm" id="jumpNews" title="这一周发生的大事，每天自动更新">&#128240; 今日资讯</button>
+        <a class="btn sm ghost" href="upload.html">上传</a>
         <button class="btn sm ghost" id="themeBtn" title="切换深色/浅色">&#9789;&#65039;</button>
     </div>
     <div class="swrap">
@@ -528,6 +572,12 @@ mark.hit.on{box-shadow:0 0 0 2px var(--red)}
 
   <!-- ============ 首页 ============ -->
   <div id="home">
+
+    <!-- ============ 今日资讯 ============ -->
+    <div class="sec" id="secNews">
+      <h2>今日资讯 <em id="newsTat">这一周发生的大事 · 每天更新</em></h2>
+      <div id="newsWrap"></div>
+    </div>
 
     <!-- ============ 最近更新 ============ -->
     <div class="sec" id="secRecent" style="display:none">
@@ -651,7 +701,7 @@ mark.hit.on{box-shadow:0 0 0 2px var(--red)}
   </div>
 
   <div class="foot">
-    罐头的AI知识库 · 生成于 2026-10-08 18:41 · 共 137 篇<br>
+    罐头的AI知识库 · 生成于 2026-10-08 19:13 · 共 137 篇<br>
     Hermes 技能库 + 自建分镜大师包 + 青苹果与红苹果剧本项目
   </div>
 </div>
@@ -785,7 +835,7 @@ function dlDoc(d){
 function dlPack(p){
   var docs = p.docs.map(function(i){ return byId[i]; }).filter(Boolean);
   var fs = zipDocs(docs, p.folder);
-  fs.push({path: p.folder+'/README.md', data: '# '+p.name+'\n\n'+p.desc+'\n\n共 '+docs.length+' 个技能/文档。\n\n把 '+p.folder+' 下的每个子目录复制到你所用 agent 的 skills 目录即可（每个子目录内含 SKILL.md）。\n\n生成时间：2026-10-08 18:41\n'});
+  fs.push({path: p.folder+'/README.md', data: '# '+p.name+'\n\n'+p.desc+'\n\n共 '+docs.length+' 个技能/文档。\n\n把 '+p.folder+' 下的每个子目录复制到你所用 agent 的 skills 目录即可（每个子目录内含 SKILL.md）。\n\n生成时间：2026-10-08 19:13\n'});
   save(zip(fs), p.folder+'.zip');
   toast('已打包 '+docs.length+' 篇：'+p.folder+'.zip');
 }
@@ -793,7 +843,7 @@ function dlTopic(t){
   var docs = DOCS.filter(function(d){ return (d.topics||[]).indexOf(t)>=0; });
   var files = [];
   docs.forEach(function(d){ files = files.concat(zipDocs([d], t)); });
-  files.push({path: t+'/README.md', data:'# '+t+'\n\n共 '+docs.length+' 篇。\n\n生成时间：2026-10-08 18:41\n'});
+  files.push({path: t+'/README.md', data:'# '+t+'\n\n共 '+docs.length+' 篇。\n\n生成时间：2026-10-08 19:13\n'});
   save(zip(files), t+'.zip');
   toast('已打包分类「'+t+'」'+docs.length+' 篇');
 }
@@ -814,12 +864,12 @@ function dlAll(){
   GROUPS.forEach(function(g){
     g.docs.map(function(i){ return byId[i]; }).filter(Boolean).forEach(function(d){ fs = fs.concat(zipDocs([d], g.name)); });
   });
-  fs.push({path:'README.md', data:'# 知识库全量导出\n\n生成时间：2026-10-08 18:41\n共 137 篇。\n\n目录结构：分组名/技能名/SKILL.md（含 references、scripts、examples 等支持文件）。\n把某个「技能名」目录复制到你所用 agent 的 skills 目录即可。\n'});
+  fs.push({path:'README.md', data:'# 知识库全量导出\n\n生成时间：2026-10-08 19:13\n共 137 篇。\n\n目录结构：分组名/技能名/SKILL.md（含 references、scripts、examples 等支持文件）。\n把某个「技能名」目录复制到你所用 agent 的 skills 目录即可。\n'});
   save(zip(fs), '知识库-全量.zip');
   toast('已打包全量 '+DOCS.length+' 篇');
 }
 function dlMarkdown(){
-  var s = '# 知识库全量合集\n\n生成时间：2026-10-08 18:41\n\n---\n\n';
+  var s = '# 知识库全量合集\n\n生成时间：2026-10-08 19:13\n\n---\n\n';
   DOCS.forEach(function(d){
     s += '\n\n# ' + d.title + '\n\n> ' + (d.group||'') + ' · ' + (d.desc||'') + '\n\n';
     var b = bodyOf(d);
@@ -1229,6 +1279,52 @@ document.getElementById('jumpToc').onclick = function(){
   document.getElementById('secToc').scrollIntoView({behavior:'smooth', block:'start'}); };
 document.getElementById('jumpGal').onclick = function(){
   document.getElementById('secGal').scrollIntoView({behavior:'smooth', block:'start'}); };
+
+/* ---------------- 今日资讯：每日大事 + 本周 AI · 创作圈 ---------------- */
+document.getElementById('jumpNews').onclick = function(){
+  document.getElementById('secNews').scrollIntoView({behavior:'smooth', block:'start'}); };
+function newsEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function newsRender(d){
+  var wrap = document.getElementById('newsWrap'); if(!wrap) return;
+  var days = (d && d.days) || [], ai = (d && d.ai) || [];
+  if(!days.length && !ai.length){ wrap.innerHTML = '<div class="empty">资讯还没抓下来，联网刷新一下试试</div>'; return; }
+  var today = (d && d.today) || (days[0] && days[0].date) || '', h = '';
+  days.forEach(function(day, i){
+    var isT = (day.date === today) || i === 0;
+    h += '<details class="newsday"'+(isT?' open':'')+'><summary>'
+       + '<span class="dt">'+newsEsc(day.date)+'</span>'
+       + '<span class="dw">'+newsEsc(day.dow||'')+(isT?' · 今天':'')+'</span>'
+       + '<span class="n">'+(day.news||[]).length+' 条</span></summary>';
+    if(isT && day.img) h += '<div class="newscov"><img loading="lazy" alt="" src="'+newsEsc(day.img)
+       + '" onerror="this.parentNode.style.display=\'none\'"></div>';
+    h += '<ol>' + (day.news||[]).map(function(n){ return '<li>'+newsEsc(n)+'</li>'; }).join('') + '</ol>';
+    if(day.tip) h += '<p class="tip">今日一句 · '+newsEsc(day.tip)+'</p>';
+    h += '</details>';
+  });
+  if(ai.length){
+    var srcs = [];
+    ai.forEach(function(a){ if(srcs.indexOf(a.src)<0) srcs.push(a.src); });
+    h += '<div class="newshead" style="margin:15px 0 9px"><b>本周 AI · 创作圈</b><span>'
+       + newsEsc(srcs.join(' · ')) + ' · ' + ai.length + ' 条</span></div><div class="newsai">'
+       + ai.map(function(a){ return '<a href="'+newsEsc(a.url)+'" target="_blank" rel="noopener">'
+           + '<span class="d">'+newsEsc(String(a.date||'').slice(5))+'</span>'
+           + '<span class="s">'+newsEsc(a.src||'')+'</span>'
+           + '<span>'+newsEsc(a.title)+'</span></a>'; }).join('') + '</div>';
+  }
+  wrap.innerHTML = h;
+  var tat = document.getElementById('newsTat');
+  if(tat && d && d.updated) tat.textContent = '更新于 '+d.updated+' · 每天自动更新';
+}
+function newsLoad(){
+  if(window.__KB__ && window.__KB__.news) newsRender(window.__KB__.news);
+  try{
+    fetch('media/news.json?t='+Date.now()).then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(j){ if(j && j.days && j.days.length){ newsRender(j); if(window.__KB__) window.__KB__.news = j; } })
+      .catch(function(){});
+  }catch(e){}
+}
+newsLoad();
 
 /* ---------------- 作品表 · 图库 ---------------- */
 var GAL_BASE = P.media || [], GAL_USER = [], galMode = 'rail', galTimer = null, galFolder = '';
@@ -2127,7 +2223,7 @@ cpQ.addEventListener('keydown', function(e){
 });
 cpEl.addEventListener('click', function(e){ if(e.target === cpEl) cpClose(); });
 document.getElementById('cmdBtn').onclick = function(){ cpOpen(''); };
-document.getElementById('rndBtn').onclick = randomOpen;
+var _rnd = document.getElementById('rndBtn'); if(_rnd) _rnd.onclick = randomOpen;
 document.getElementById('themeBtn').onclick = themeToggle;
 document.getElementById('fminus').onclick = function(){ fsSet(-0.1); };
 document.getElementById('fplus').onclick = function(){ fsSet(0.1); };
