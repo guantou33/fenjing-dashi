@@ -338,6 +338,7 @@ function makeThumb(p, imgEl){
       if(!bs[0] || !bs[1]){ log('浏览器不支持 webp 编码，换 Chrome/Edge 再试：' + p.file.name, 'e'); return; }
       p.fullBlob = bs[0]; p.thumbBlob = bs[1];
       p.w = full.w; p.h = full.h; p.ready = true;
+      notifyReady();
       log('处理好：' + p.title + '（大图 ' + human(bs[0].size) + '，缩略 ' + human(bs[1].size) + '）');
     });
   };
@@ -357,6 +358,15 @@ function canvasToBlob(c, q){
     c.toBlob(function(b){ res(b); }, 'image/webp', q);
   });
 }
+/* 所有文件都处理完了，明确告诉用户「现在可以传了」——手机上最容易卡在这一步不知道能不能点 */
+function notifyReady(){
+  if(!picks.length || !picks.every(function(p){ return p.ready; })){ window.__readyLogged = false; return; }
+  if(window.__readyLogged) return;
+  window.__readyLogged = true;
+  var noCover = picks.filter(function(p){ return p.thumbFailed; }).length;
+  log('全部就绪，可以点「开始上传」了' + (noCover ? '（' + noCover + ' 个没有封面，会照传）' : ''), 'k');
+}
+
 /* 视频：抽 0.6 秒那帧当封面。
    手机上抽帧经常不回调（大视频/HEVC），所以加 15 秒兜底：抽不到封面也照传视频，别整条卡死。 */
 function makeVideoThumb(p, imgEl){
@@ -378,6 +388,7 @@ function makeVideoThumb(p, imgEl){
       imgEl.alt = '无封面';
       log('抽不到封面，不带封面照传视频：' + p.title + (note ? '（' + note + '）' : ''), 'w');
     }
+    notifyReady();
   }
   var v = document.createElement('video');
   v.preload = 'auto'; v.muted = true; v.playsInline = true;
