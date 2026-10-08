@@ -1,3 +1,20 @@
 {
- "works": []
+ "works": [
+  {
+   "type": "video",
+   "cat": "字幕版",
+   "title": "鲸溺",
+   "caption": "",
+   "folder": "鲸溺",
+   "line": "AI",
+   "script": "鲸溺",
+   "tags": [
+    "鲸溺"
+   ],
+   "by": "我上传",
+   "date": "2026-10-08",
+   "full": "media/作品库/鲸溺/1791468002278-1-鲸溺.mov",
+   "thumb": ""
+  }
+ ]
 }
