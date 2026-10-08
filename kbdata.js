@@ -1445,7 +1445,7 @@ window.__KB__={"docs":[{"id":"h:apple/apple-notes","kind":"skill","name":"apple-
     "media/灵感/ins-20261008-9ea5661e/f19.webp",
     "media/灵感/ins-20261008-9ea5661e/f20.webp"
    ],
-   "video": "",
+   "video": "media/灵感/ins-20261008-9ea5661e/video.mp4",
    "transcript": [
     {
      "t": 21.0,
