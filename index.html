@@ -701,7 +701,7 @@ mark.hit.on{box-shadow:0 0 0 2px var(--red)}
   </div>
 
   <div class="foot">
-    罐头的AI知识库 · 生成于 2026-10-08 19:13 · 共 137 篇<br>
+    罐头的AI知识库 · 生成于 2026-10-08 20:06 · 共 137 篇<br>
     Hermes 技能库 + 自建分镜大师包 + 青苹果与红苹果剧本项目
   </div>
 </div>
@@ -835,7 +835,7 @@ function dlDoc(d){
 function dlPack(p){
   var docs = p.docs.map(function(i){ return byId[i]; }).filter(Boolean);
   var fs = zipDocs(docs, p.folder);
-  fs.push({path: p.folder+'/README.md', data: '# '+p.name+'\n\n'+p.desc+'\n\n共 '+docs.length+' 个技能/文档。\n\n把 '+p.folder+' 下的每个子目录复制到你所用 agent 的 skills 目录即可（每个子目录内含 SKILL.md）。\n\n生成时间：2026-10-08 19:13\n'});
+  fs.push({path: p.folder+'/README.md', data: '# '+p.name+'\n\n'+p.desc+'\n\n共 '+docs.length+' 个技能/文档。\n\n把 '+p.folder+' 下的每个子目录复制到你所用 agent 的 skills 目录即可（每个子目录内含 SKILL.md）。\n\n生成时间：2026-10-08 20:06\n'});
   save(zip(fs), p.folder+'.zip');
   toast('已打包 '+docs.length+' 篇：'+p.folder+'.zip');
 }
@@ -843,7 +843,7 @@ function dlTopic(t){
   var docs = DOCS.filter(function(d){ return (d.topics||[]).indexOf(t)>=0; });
   var files = [];
   docs.forEach(function(d){ files = files.concat(zipDocs([d], t)); });
-  files.push({path: t+'/README.md', data:'# '+t+'\n\n共 '+docs.length+' 篇。\n\n生成时间：2026-10-08 19:13\n'});
+  files.push({path: t+'/README.md', data:'# '+t+'\n\n共 '+docs.length+' 篇。\n\n生成时间：2026-10-08 20:06\n'});
   save(zip(files), t+'.zip');
   toast('已打包分类「'+t+'」'+docs.length+' 篇');
 }
@@ -864,12 +864,12 @@ function dlAll(){
   GROUPS.forEach(function(g){
     g.docs.map(function(i){ return byId[i]; }).filter(Boolean).forEach(function(d){ fs = fs.concat(zipDocs([d], g.name)); });
   });
-  fs.push({path:'README.md', data:'# 知识库全量导出\n\n生成时间：2026-10-08 19:13\n共 137 篇。\n\n目录结构：分组名/技能名/SKILL.md（含 references、scripts、examples 等支持文件）。\n把某个「技能名」目录复制到你所用 agent 的 skills 目录即可。\n'});
+  fs.push({path:'README.md', data:'# 知识库全量导出\n\n生成时间：2026-10-08 20:06\n共 137 篇。\n\n目录结构：分组名/技能名/SKILL.md（含 references、scripts、examples 等支持文件）。\n把某个「技能名」目录复制到你所用 agent 的 skills 目录即可。\n'});
   save(zip(fs), '知识库-全量.zip');
   toast('已打包全量 '+DOCS.length+' 篇');
 }
 function dlMarkdown(){
-  var s = '# 知识库全量合集\n\n生成时间：2026-10-08 19:13\n\n---\n\n';
+  var s = '# 知识库全量合集\n\n生成时间：2026-10-08 20:06\n\n---\n\n';
   DOCS.forEach(function(d){
     s += '\n\n# ' + d.title + '\n\n> ' + (d.group||'') + ' · ' + (d.desc||'') + '\n\n';
     var b = bodyOf(d);
@@ -1391,8 +1391,17 @@ function delWork(it){
   var files = [{path: it.full, remove:true}];
   if(it.thumb) files.push({path: it.thumb, remove:true});
   var c = kbCfg();
-  fetch('https://raw.githubusercontent.com/'+c.repo+'/'+c.branch+'/media/works.json?t='+Date.now(), {cache:'no-store'})
-    .then(function(r){ return r.ok ? r.json() : {works:[]}; }).catch(function(){ return {works:[]}; })
+  /* 优先走 API 读作品表：raw.githubusercontent 有 CDN 缓存，读到旧表会把刚传的条目一起删掉 */
+  ghApi('/contents/media/works.json?ref='+encodeURIComponent(c.branch)+'&t='+Date.now())
+    .then(function(r){
+      var j = JSON.parse(decodeURIComponent(escape(atob(String(r.content||'').replace(/\s/g,'')))));
+      if(!j || !j.works) throw new Error('格式不对');
+      return j;
+    })
+    .catch(function(){
+      return fetch('https://raw.githubusercontent.com/'+c.repo+'/'+c.branch+'/media/works.json?t='+Date.now(), {cache:'no-store'})
+        .then(function(r){ return r.ok ? r.json() : {works:[]}; }).catch(function(){ return {works:[]}; });
+    })
     .then(function(cur){
       var left = ((cur && cur.works) ? cur.works : []).filter(function(x){
         return !(x.full === it.full && x.title === it.title); });
@@ -1438,10 +1447,13 @@ function renderGalFolders(){
     };
   });
 }
+/* 视频没抽到封面时的占位图（省得 <img src=""> 显示成裂图） */
+var VIDPH = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 9"><rect width="16" height="9" fill="#17171b"/><circle cx="8" cy="4.5" r="2.1" fill="#C8102E"/><path d="M7.1 3.3 L9.7 4.5 L7.1 5.7 Z" fill="#fff"/></svg>');
+function thumbOf(it){ return it.thumb ? it.thumb : (it.type==='video' ? VIDPH : (it.full||'')); }
 function gcard(it, i, rail){
   var bd = it.type==='video'? '视频' : (it.type==='frames'? (it.count+' 帧') : '图片');
   return '<div class="'+(rail?'gitem ':'')+'gcard" data-i="'+i+'">'+
-    '<div class="ph"><img loading="lazy" src="'+esc(it.thumb)+'" alt="">'+
+    '<div class="ph"><img loading="lazy" src="'+esc(thumbOf(it))+'" alt="">'+
     '<span class="bd">'+bd+'</span>'+
     (it.type==='frames'? '<span class="cnt">'+it.count+' 帧</span>':'')+
     (it.type==='video'&&it.dur? '<span class="cnt">'+it.dur+'s</span>':'')+
@@ -1555,7 +1567,7 @@ function galFeed(items){
             var i = idx[it.full || it.thumb || it.title];
             var bd = it.type==='video' ? '视频' : (it.type==='frames' ? (it.count||'')+' 帧' : '');
             return '<a class="fi" data-i="'+i+'" title="'+esc(it.title || '')+'">' +
-              '<img loading="lazy" src="'+esc(it.thumb || it.full)+'" alt="">' +
+              '<img loading="lazy" src="'+esc(thumbOf(it)) +'" alt="">' +
               (bd? '<span class="bd">'+esc(bd)+'</span>' : '') + '</a>';
           }).join('') +
           (p.its.length > 9 ? '<span class="fmore">+'+(p.its.length-9)+'</span>' : '') +

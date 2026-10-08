@@ -319,6 +319,7 @@ function renderPicks(){
     if(p.preview) img.src = p.preview;
     else if(p.processing) img.alt = '处理中…';
     else if(p.kind === 'image') makeThumb(p, img);
+    else if(p.thumbFailed) img.alt = '无封面';
     else makeVideoThumb(p, img);
   });
 }
@@ -356,29 +357,51 @@ function canvasToBlob(c, q){
     c.toBlob(function(b){ res(b); }, 'image/webp', q);
   });
 }
-/* 视频：抽 0.6 秒那帧当封面 */
+/* 视频：抽 0.6 秒那帧当封面。
+   手机上抽帧经常不回调（大视频/HEVC），所以加 15 秒兜底：抽不到封面也照传视频，别整条卡死。 */
 function makeVideoThumb(p, imgEl){
   p.processing = true;
+  var done = false, watchdog = null;
+  function finish(blob, dur, note){
+    if(done) return; done = true;
+    if(watchdog) clearTimeout(watchdog);
+    p.processing = false;
+    p.thumbBlob = blob || null;
+    if(dur) p.dur = dur;
+    p.ready = true;                       /* 关键：抽不到封面也算就绪，否则整条上传被跳过 */
+    if(blob){
+      p.preview = URL.createObjectURL(blob);
+      imgEl.src = p.preview;
+      log('封面抽好：' + p.title + '（' + (dur || 0) + 's）');
+    }else{
+      p.thumbFailed = true;
+      imgEl.alt = '无封面';
+      log('抽不到封面，不带封面照传视频：' + p.title + (note ? '（' + note + '）' : ''), 'w');
+    }
+  }
   var v = document.createElement('video');
-  v.preload = 'metadata'; v.muted = true; v.playsInline = true;
+  v.preload = 'auto'; v.muted = true; v.playsInline = true;
+  v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
   v.src = URL.createObjectURL(p.file);
-  v.onloadeddata = function(){
-    try{ v.currentTime = Math.min(0.6, (v.duration||1)/3); }catch(e){}
+  watchdog = setTimeout(function(){ finish(null, v.duration, '等太久'); }, 15000);
+  v.onloadedmetadata = v.onloadeddata = function(){
+    try{ v.currentTime = Math.min(0.6, (v.duration || 1) / 3); }
+    catch(e){ finish(null, v.duration, '不能定位'); }
   };
   v.onseeked = function(){
-    var c = document.createElement('canvas');
-    var s = Math.min(1, 900 / v.videoWidth);
-    c.width = Math.round(v.videoWidth*s); c.height = Math.round(v.videoHeight*s);
-    c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
-    canvasToBlob(c, 0.82).then(function(b){
-      p.processing = false;
-      p.thumbBlob = b; p.dur = Math.round(v.duration || 0);
-      p.preview = URL.createObjectURL(b);
-      imgEl.src = p.preview;
-      p.ready = true; log('封面抽好：' + p.title + '（' + p.dur + 's）');
-    });
+    try{
+      var vw = v.videoWidth || 900, vh = v.videoHeight || 506;
+      var c = document.createElement('canvas');
+      var s = Math.min(1, 900 / vw);
+      c.width = Math.round(vw * s); c.height = Math.round(vh * s);
+      c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+      canvasToBlob(c, 0.82).then(function(b){
+        if(b) finish(b, Math.round(v.duration || 0));
+        else finish(null, v.duration, '浏览器不能编码 webp');
+      });
+    }catch(e){ finish(null, v.duration, '抽帧失败'); }
   };
-  v.onerror = function(){ p.processing = false; log('视频读取失败：' + p.file.name, 'e'); };
+  v.onerror = function(){ finish(null, 0, '这个格式手机解不开'); };
 }
 
 /* ---------- base64 ---------- */
@@ -432,6 +455,19 @@ function commitFiles(files, message){
 }
 
 function fetchWorks(){
+  /* 优先走 API：raw.githubusercontent 有 CDN 缓存，可能读到旧数据，一提交就把别人的条目覆盖掉 */
+  if(cfg.token && cfg.repo){
+    return api('/contents/media/works.json?ref=' + encodeURIComponent(cfg.branch) + '&t=' + Date.now())
+      .then(function(r){
+        var txt = decodeURIComponent(escape(atob(String(r.content || '').replace(/\s/g, ''))));
+        var j = JSON.parse(txt);
+        return (j && j.works) ? j : {works: []};
+      })
+      .catch(function(){ return fetchWorksRaw(); });
+  }
+  return fetchWorksRaw();
+}
+function fetchWorksRaw(){
   var u = 'https://raw.githubusercontent.com/' + cfg.repo + '/' + cfg.branch
         + '/media/works.json?t=' + Date.now();
   return fetch(u, {cache:'no-store'}).then(function(r){ return r.ok ? r.json() : {works:[]}; })
@@ -459,11 +495,25 @@ document.getElementById('go').onclick = function(){
   var btn = this; btn.disabled = true;
   log('=== 开始上传 ' + picks.length + ' 个文件 ===', 'k');
 
+  /* 先自检：没处理完 / 单个文件超过 GitHub 上限，就地拦住，绝不写空数据上去 */
+  var notReady = picks.filter(function(p){ return !p.ready; });
+  if(notReady.length){
+    log('这些还没处理完，等它们出现封面/大小后再点上传：'
+        + notReady.map(function(p){ return p.title; }).join('、'), 'e');
+    btn.disabled = false; return;
+  }
+  var tooBig = picks.filter(function(p){ return p.file.size > 95 * 1024 * 1024; });
+  if(tooBig.length){
+    log('这几个文件超过 95 MB，GitHub 单文件传不上去，先在手机里剪短或压一下再来：'
+        + tooBig.map(function(p){ return p.title + '（' + human(p.file.size) + '）'; }).join('、'), 'e');
+    btn.disabled = false; return;
+  }
+
   var files = [], manifestAdd = [], stamp = Date.now();
   var chain = Promise.resolve();
   picks.forEach(function(p, i){
     chain = chain.then(function(){
-      if(!p.ready){ log('还在处理，等一下再传：' + p.title, 'e'); return null; }
+      if(!p.ready) throw new Error('有文件还没处理完：' + p.title);
       var fdir = 'media/作品库/' + folder.replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,40);
       var base = fdir + '/' + stamp + '-' + (i+1) + '-' + p.title.replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,40);
       var entry = {
@@ -473,10 +523,16 @@ document.getElementById('go').onclick = function(){
       };
       var jobs = [];
       if(p.kind === 'video'){
-        entry.full = base + '.mp4'; entry.thumb = base + '.webp';
+        /* 保留原容器后缀：iPhone 的 .mov 硬改成 .mp4 会放不出来 */
+        var ext = (p.file.name.match(/\.[A-Za-z0-9]+$/) || ['.mp4'])[0].toLowerCase();
+        if(ext === '.m4v') ext = '.mov';
+        entry.full = base + ext;
+        entry.thumb = p.thumbBlob ? (base + '.webp') : '';   /* 没抽到封面就不写这个字段，免得首页挂空图 */
         if(p.dur) entry.dur = p.dur;
         jobs.push(blob2b64(p.file).then(function(b){ files.push({path:entry.full, b64:b}); }));
-        jobs.push(blob2b64(p.thumbBlob).then(function(b){ files.push({path:entry.thumb, b64:b}); }));
+        if(p.thumbBlob){
+          jobs.push(blob2b64(p.thumbBlob).then(function(b){ files.push({path:entry.thumb, b64:b}); }));
+        }
       } else {
         entry.full = base + '.webp'; entry.thumb = base + '-t.webp';
         if(p.w) entry.w = p.w;
@@ -491,7 +547,11 @@ document.getElementById('go').onclick = function(){
   });
 
   chain
-    .then(function(){ return fetchWorks(); })
+    .then(function(){
+      /* 一个文件都没成 → 直接中止，别提交空数据（以前就是这里把 works.json 写空、还留一条空提交） */
+      if(!manifestAdd.length) throw new Error('没有文件通过处理，已中止，线上数据没动');
+      return fetchWorks();
+    })
     .then(function(cur){
       var w = (cur && cur.works) ? cur.works : [];
       var all = manifestAdd.concat(w);
