@@ -1,4 +1,20 @@
 {
- "works": [],
- "note": "网页上传的作品存在这里，由 upload.html / kb_upload.py 写入"
+ "works": [
+  {
+   "type": "video",
+   "cat": "字幕版",
+   "title": "鲸溺",
+   "caption": "",
+   "folder": "鲸溺",
+   "line": "AI",
+   "script": "鲸溺",
+   "tags": [
+    "鲸溺"
+   ],
+   "by": "我上传",
+   "date": "2026-10-08",
+   "full": "media/作品库/鲸溺/1791468002278-1-鲸溺.mp4",
+   "thumb": "media/作品库/鲸溺/1791468002278-1-鲸溺.webp"
+  }
+ ]
 }
