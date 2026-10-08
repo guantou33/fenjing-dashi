@@ -285,10 +285,45 @@ document.addEventListener('paste', function(e){
 
 function human(n){ return n > 1048576 ? (n/1048576).toFixed(1)+' MB' : Math.round(n/1024)+' KB'; }
 
+/* 手机上传失败九成是网络抖一下。自动重试两次再报错，别让用户白等一场。 */
+function retry(fn, times, gap){
+  times = (times == null) ? 2 : times; gap = gap || 3000;
+  return fn().catch(function(e){
+    if(times <= 0) throw e;
+    log('网络抖了一下（' + (e && e.message ? e.message : e) + '），'
+        + Math.round(gap/1000) + ' 秒后自动重试…', 'w');
+    return new Promise(function(r){ setTimeout(r, gap); }).then(function(){ return retry(fn, times-1, gap*2); });
+  });
+}
+
+/* 本机记下传成功过的东西：同一段视频再选一次会提醒「已经传过了」 */
+var HIST_KEY = 'kb_uploaded_hist_v1';
+function histLoad(){ try{ return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); }catch(e){ return []; } }
+function histAdd(items){
+  var h = histLoad().concat(items).slice(-60);
+  try{ localStorage.setItem(HIST_KEY, JSON.stringify(h)); }catch(e){}
+}
+function histFind(f){
+  var h = histLoad();
+  for(var i=h.length-1;i>=0;i--){ if(h[i].name === f.name && h[i].size === f.size) return h[i]; }
+  return null;
+}
+/* 仓库里已经有这个文件了吗（重试时用来跳过已经传上去的大文件） */
+function remoteExists(path){
+  var q = path.split('/').map(encodeURIComponent).join('/');
+  return api('/contents/' + q + '?ref=' + encodeURIComponent(cfg.branch))
+    .then(function(){ return true; }).catch(function(){ return false; });
+}
+
 function addFiles(list){
   Array.prototype.forEach.call(list, function(f){
     if(!/^image\/|^video\//.test(f.type)){ log('跳过（不是图片/视频）：' + f.name, 'e'); return; }
-    picks.push({file:f, title:f.name.replace(/\.[^.]+$/, ''), kind: f.type.indexOf('video')===0 ? 'video' : 'image'});
+    var old = histFind(f);
+    picks.push({file:f, title:f.name.replace(/\.[^.]+$/, ''), kind: f.type.indexOf('video')===0 ? 'video' : 'image', seenBefore:old});
+    if(old){
+      log('这条上次已经传成功过（' + (old.date || '') + '，标题「' + (old.title || '') + '」），作品表里已经有一份；'
+          + '真要再传一份就忽略这句。', 'w');
+    }
   });
   renderPicks();
 }
@@ -521,12 +556,14 @@ document.getElementById('go').onclick = function(){
   }
 
   var files = [], manifestAdd = [], stamp = Date.now();
+  var hb = null, t0 = 0;
   var chain = Promise.resolve();
   picks.forEach(function(p, i){
     chain = chain.then(function(){
       if(!p.ready) throw new Error('有文件还没处理完：' + p.title);
       var fdir = 'media/作品库/' + folder.replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,40);
-      var base = fdir + '/' + stamp + '-' + (i+1) + '-' + p.title.replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,40);
+      if(!p.stamp) p.stamp = stamp + '-' + (i+1);      /* 固定住，重试时路径不变，才能跳过已传文件 */
+      var base = fdir + '/' + p.stamp + '-' + p.title.replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,40);
       var entry = {
         type: p.kind, cat: cat, title: p.title, caption: '', folder: folder,
         line: line, script: script,
@@ -540,9 +577,18 @@ document.getElementById('go').onclick = function(){
         entry.full = base + ext;
         entry.thumb = p.thumbBlob ? (base + '.webp') : '';   /* 没抽到封面就不写这个字段，免得首页挂空图 */
         if(p.dur) entry.dur = p.dur;
-        jobs.push(blob2b64(p.file).then(function(b){ files.push({path:entry.full, b64:b}); }));
+        jobs.push(remoteExists(entry.full).then(function(has){
+          if(has){
+            log('这个视频仓库里已经有了（' + human(p.file.size) + '），这次跳过不重传，只补记录。', 'w');
+            return;
+          }
+          return blob2b64(p.file).then(function(b){ files.push({path:entry.full, b64:b}); });
+        }));
         if(p.thumbBlob){
-          jobs.push(blob2b64(p.thumbBlob).then(function(b){ files.push({path:entry.thumb, b64:b}); }));
+          jobs.push(remoteExists(entry.thumb).then(function(has){
+            if(has) return;
+            return blob2b64(p.thumbBlob).then(function(b){ files.push({path:entry.thumb, b64:b}); });
+          }));
         }
       } else {
         entry.full = base + '.webp'; entry.thumb = base + '-t.webp';
@@ -561,23 +607,54 @@ document.getElementById('go').onclick = function(){
     .then(function(){
       /* 一个文件都没成 → 直接中止，别提交空数据（以前就是这里把 works.json 写空、还留一条空提交） */
       if(!manifestAdd.length) throw new Error('没有文件通过处理，已中止，线上数据没动');
+      var bytes = 0;
+      files.forEach(function(f){ bytes += (f.b64 ? f.b64.length : 0); });
+      if(bytes > 3 * 1024 * 1024){
+        log('要写进仓库的数据约 ' + human(bytes) + '。视频越大越慢（几十 MB 要 1～3 分钟），'
+            + '这期间别关页面、别切到后台。', 'k');
+      }
+      t0 = Date.now();
+      if(hb) clearInterval(hb);
+      hb = setInterval(function(){ log('…还在传，已经 ' + Math.round((Date.now()-t0)/1000) + ' 秒', 'k'); }, 15000);
       return fetchWorks();
     })
     .then(function(cur){
       var w = (cur && cur.works) ? cur.works : [];
+      /* 同一条（full 相同）已经在线上了就别再加一遍，免得重试出重复条目 */
+      w = w.filter(function(x){
+        return !manifestAdd.some(function(nw){ return nw.full && nw.full === x.full; });
+      });
       var all = manifestAdd.concat(w);
       var json = JSON.stringify({works: all}, null, 1);
       var b64 = btoa(unescape(encodeURIComponent(json)));
       files.push({path:'media/works.json', b64:b64});
       log('提交 ' + files.length + ' 个文件到 ' + cfg.branch + ' …', 'k');
-      return commitFiles(files, '上传作品：' + manifestAdd.map(function(e){ return e.title; }).join('、').slice(0,80));
+      return retry(function(){
+        return commitFiles(files, '上传作品：' + manifestAdd.map(function(e){ return e.title; }).join('、').slice(0,80));
+      }, 2, 3000);
     })
     .then(function(){
-      log('✅ 上传成功。GitHub Pages 重建约 1 分钟，之后刷新首页就能看到。', 'k');
+      if(hb) clearInterval(hb);
+      var secs = Math.round((Date.now() - t0) / 1000);
+      histAdd(manifestAdd.map(function(e){
+        var p = null;
+        picks.forEach(function(x){ if(x.title === e.title) p = x; });
+        return {name: (p && p.file ? p.file.name : e.title), size: (p && p.file ? p.file.size : 0),
+                title: e.title, date: e.date, path: e.full};
+      }));
+      log('✅ 上传成功（' + secs + ' 秒）：' + manifestAdd.map(function(e){ return e.title; }).join('、')
+          + '。GitHub Pages 重建约 1 分钟，刷新首页 →「作品表」就能看到。', 'k');
+      var a = document.createElement('a');
+      a.href = 'https://guantou33.github.io/fenjing-dashi/'; a.target = '_blank';
+      a.textContent = '👉 打开知识库看这一条';
+      logEl.appendChild(a); logEl.scrollTop = logEl.scrollHeight;
       picks = []; renderPicks(); loadWorks();
     })
     .catch(function(e){
-      log('❌ 失败：' + e.message, 'e');
+      if(hb) clearInterval(hb);
+      log('❌ 失败：' + (e && e.message ? e.message : e), 'e');
+      log('手机上多半是网络断了一下。已经传进仓库的部分不会白传：'
+          + '再点一次「开始上传」，同样的视频会自动跳过、只补没写完的部分。', 'w');
     })
     .then(function(){ btn.disabled = false; });
 };
