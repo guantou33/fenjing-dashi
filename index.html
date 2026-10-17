@@ -725,7 +725,7 @@ mark.hit.on{box-shadow:0 0 0 2px var(--red)}
   </div>
 
   <div class="foot">
-    罐头的AI知识库 · 生成于 2026-10-17 18:35 · 共 199 篇<br>
+    罐头的AI知识库 · 生成于 2026-10-17 18:54 · 共 199 篇<br>
     Hermes 技能库 + 自建分镜大师包 + 青苹果与红苹果剧本项目
   </div>
 </div>
@@ -859,7 +859,7 @@ function dlDoc(d){
 function dlPack(p){
   var docs = p.docs.map(function(i){ return byId[i]; }).filter(Boolean);
   var fs = zipDocs(docs, p.folder);
-  fs.push({path: p.folder+'/README.md', data: '# '+p.name+'\n\n'+p.desc+'\n\n共 '+docs.length+' 个技能/文档。\n\n把 '+p.folder+' 下的每个子目录复制到你所用 agent 的 skills 目录即可（每个子目录内含 SKILL.md）。\n\n生成时间：2026-10-17 18:35\n'});
+  fs.push({path: p.folder+'/README.md', data: '# '+p.name+'\n\n'+p.desc+'\n\n共 '+docs.length+' 个技能/文档。\n\n把 '+p.folder+' 下的每个子目录复制到你所用 agent 的 skills 目录即可（每个子目录内含 SKILL.md）。\n\n生成时间：2026-10-17 18:54\n'});
   save(zip(fs), p.folder+'.zip');
   toast('已打包 '+docs.length+' 篇：'+p.folder+'.zip');
 }
@@ -867,7 +867,7 @@ function dlTopic(t){
   var docs = DOCS.filter(function(d){ return (d.topics||[]).indexOf(t)>=0; });
   var files = [];
   docs.forEach(function(d){ files = files.concat(zipDocs([d], t)); });
-  files.push({path: t+'/README.md', data:'# '+t+'\n\n共 '+docs.length+' 篇。\n\n生成时间：2026-10-17 18:35\n'});
+  files.push({path: t+'/README.md', data:'# '+t+'\n\n共 '+docs.length+' 篇。\n\n生成时间：2026-10-17 18:54\n'});
   save(zip(files), t+'.zip');
   toast('已打包分类「'+t+'」'+docs.length+' 篇');
 }
@@ -888,12 +888,12 @@ function dlAll(){
   GROUPS.forEach(function(g){
     g.docs.map(function(i){ return byId[i]; }).filter(Boolean).forEach(function(d){ fs = fs.concat(zipDocs([d], g.name)); });
   });
-  fs.push({path:'README.md', data:'# 知识库全量导出\n\n生成时间：2026-10-17 18:35\n共 199 篇。\n\n目录结构：分组名/技能名/SKILL.md（含 references、scripts、examples 等支持文件）。\n把某个「技能名」目录复制到你所用 agent 的 skills 目录即可。\n'});
+  fs.push({path:'README.md', data:'# 知识库全量导出\n\n生成时间：2026-10-17 18:54\n共 199 篇。\n\n目录结构：分组名/技能名/SKILL.md（含 references、scripts、examples 等支持文件）。\n把某个「技能名」目录复制到你所用 agent 的 skills 目录即可。\n'});
   save(zip(fs), '知识库-全量.zip');
   toast('已打包全量 '+DOCS.length+' 篇');
 }
 function dlMarkdown(){
-  var s = '# 知识库全量合集\n\n生成时间：2026-10-17 18:35\n\n---\n\n';
+  var s = '# 知识库全量合集\n\n生成时间：2026-10-17 18:54\n\n---\n\n';
   DOCS.forEach(function(d){
     s += '\n\n# ' + d.title + '\n\n> ' + (d.group||'') + ' · ' + (d.desc||'') + '\n\n';
     var b = bodyOf(d);
@@ -1660,6 +1660,7 @@ function workEdit(it, after){
     '<div class="wfrow"><span class="wflab">分类</span><input class="wfin" id="wfLine" value="' + escA(it.line||'') + '" placeholder="AI / 资产 / 摄影"></div>' +
     '<div class="wfrow"><span class="wflab">剧本</span><input class="wfin" id="wfScript" value="' + escA(it.script||'') + '" placeholder="归到哪个剧本，留空就是不归"></div>' +
     '<div class="wfrow"><span class="wflab">标签</span><input class="wfin" id="wfTags" value="' + escA(tagsIn(it)) + '" placeholder="逗号分开，如：鲸溺，科幻，预告"></div>' +
+    '<div class="wfrow"><span class="wflab">模型</span><input class="wfin" id="wfModel" value="' + escA(it.model||'') + '" placeholder="出图的模型型号，如 Seedream 5.0 Flash"></div>' +
     '<div class="wfrow"><span class="wflab">说明</span><input class="wfin" id="wfCap" value="' + escA(it.caption||'') + '" placeholder="一句话说明"></div>' +
     '<div class="wfbtns"><span class="wfhint">改完点保存：只写回仓库的作品表，文件不用重传</span>' +
       '<button class="btn sm wfok">保存</button><button class="btn sm ghost wfno">取消</button></div>';
@@ -1673,6 +1674,7 @@ function workEdit(it, after){
       line: box.querySelector('#wfLine').value.trim(),
       script: box.querySelector('#wfScript').value.trim(),
       tags: tagsOut(box.querySelector('#wfTags').value),
+      model: box.querySelector('#wfModel').value.trim(),
       caption: box.querySelector('#wfCap').value.trim()
     };
     if(!vals.title){ toast('标题不能空着'); return; }
@@ -1697,6 +1699,7 @@ function workSave(it, vals, ok){
         if(!((keyA && w.full === keyA) || (keyB && w.thumb === keyB))) return;
         w.title = vals.title;
         w.line = vals.line; w.script = vals.script; w.caption = vals.caption;
+        if(vals.model) w.model = vals.model; else delete w.model;
         if(vals.tags.length) w.tags = vals.tags; else delete w.tags;
         hit++;
       });
@@ -1939,6 +1942,8 @@ function lightbox(i){
   var prBox = '';
   if(it.prompt){
     prBox = '<div class="lbpr"><div class="lbprh"><b>&#9998; 生成提示词</b>'+
+      (it.model? '<span class="tag">模型 · '+esc(it.model)+'</span>':'')+
+      (it.params? '<span class="tag gray">'+esc(it.params)+'</span>':'')+
       (it.neg? '<span class="tag">含负向词</span>':'')+
       (it.promptBy? '<span class="tag">'+esc(it.promptBy)+'</span>':'')+
       '<span style="flex:1"></span>'+
@@ -1954,6 +1959,7 @@ function lightbox(i){
       (it.line? '<span class="tag red">'+esc(it.line)+'</span>' : '')+
       (it.script? '<span class="tag">剧本 · '+esc(it.script)+'</span>' : '')+
       (it.by? '<span class="tag">'+esc(it.by)+'</span>' : '')+
+      (it.model? '<span class="tag">模型 · '+esc(it.model)+'</span>' : '')+
       '<span style="flex:1"></span>'+
       '<button class="btn sm ghost" id="lbPrev">&#8592; 上一件</button>'+
       '<button class="btn sm ghost" id="lbNext">下一件 &#8594;</button>'+
